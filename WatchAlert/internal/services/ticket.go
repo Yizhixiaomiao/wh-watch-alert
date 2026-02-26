@@ -597,6 +597,43 @@ func (s ticketService) GetStatistics(req interface{}) (interface{}, interface{})
 		statusStats[string(status)] = count
 	}
 
+	// 计算SLA达成率
+	var slaRate float64
+	if stats.TotalCount > 0 {
+		var notOverdueCount int64
+		s.ctx.DB.Ticket().GetDB().Model(&models.Ticket{}).
+			Where("tenant_id = ? AND is_overdue = ?", r.TenantId, false).
+			Count(&notOverdueCount)
+		slaRate = float64(notOverdueCount) / float64(stats.TotalCount)
+	}
+
+	// 获取用户效率统计
+	var userStats []types.ResponseTicketUserStats
+	s.ctx.DB.Ticket().GetDB().Model(&models.Ticket{}).
+		Select("assigned_to as user_id, assigned_to as user_name, COUNT(*) as ticket_count, AVG(response_time) as avg_response_time, AVG(resolution_time) as avg_resolution").
+		Where("tenant_id = ? AND assigned_to != ''", r.TenantId).
+		Group("assigned_to").
+		Scan(&userStats)
+
+	for i := range userStats {
+		if userStats[i].TicketCount > 0 {
+			var userNotOverdueCount int64
+			s.ctx.DB.Ticket().GetDB().Model(&models.Ticket{}).
+				Where("tenant_id = ? AND assigned_to = ? AND is_overdue = ?", r.TenantId, userStats[i].UserId, false).
+				Count(&userNotOverdueCount)
+			userStats[i].SLARate = float64(userNotOverdueCount) / float64(userStats[i].TicketCount)
+		}
+	}
+
+	// 获取趋势数据
+	var trendData []types.ResponseTicketTrendData
+	s.ctx.DB.Ticket().GetDB().Model(&models.Ticket{}).
+		Select("DATE(FROM_UNIXTIME(created_at)) as date, COUNT(*) as count, SUM(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 ELSE 0 END) as resolved").
+		Where("tenant_id = ?", r.TenantId).
+		Group("DATE(FROM_UNIXTIME(created_at))").
+		Order("date ASC").
+		Scan(&trendData)
+
 	return types.ResponseTicketStatistics{
 		TotalCount:      stats.TotalCount,
 		PendingCount:    stats.PendingCount,
@@ -607,6 +644,9 @@ func (s ticketService) GetStatistics(req interface{}) (interface{}, interface{})
 		StatusStats:     statusStats,
 		AvgResponseTime: stats.AvgResponseTime,
 		AvgResolution:   stats.AvgResolution,
+		SLARate:         slaRate,
+		UserStats:       userStats,
+		TrendData:       trendData,
 	}, nil
 }
 

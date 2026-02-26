@@ -307,17 +307,19 @@ type ResponseTicketStatistics struct {
 
 // ResponseTicketUserStats 用户统计
 type ResponseTicketUserStats struct {
-	UserId        string  `json:"userId"`
-	UserName      string  `json:"userName"`
-	TicketCount   int64   `json:"ticketCount"`
-	AvgResolution int64   `json:"avgResolution"`
-	SLARate       float64 `json:"slaRate"`
+	UserId         string  `json:"userId"`
+	UserName       string  `json:"userName"`
+	TicketCount    int64   `json:"ticketCount"`
+	AvgResponseTime int64  `json:"avgResponseTime"`
+	AvgResolution  int64   `json:"avgResolution"`
+	SLARate        float64 `json:"slaRate"`
 }
 
 // ResponseTicketTrendData 趋势数据
 type ResponseTicketTrendData struct {
-	Date  string `json:"date"`
-	Count int64  `json:"count"`
+	Date    string `json:"date"`
+	Count   int64  `json:"count"`
+	Resolved int64  `json:"resolved"`
 }
 
 // WechatTemplateMessage 微信模板消息
