@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"watchAlert/alert/process"
 	"watchAlert/internal/ctx"
 	"watchAlert/internal/models"
 	"watchAlert/pkg/provider"
@@ -340,7 +341,7 @@ func (t *AlertRule) Recover(tenantId, ruleId string, eventCacheKey models.AlertE
 			// 更新告警事件到 Redis
 			t.ctx.Redis.Alert().PushAlertEvent(newEvent)
 			// 推送事件到故障中心，触发状态变化处理（包括发布告警恢复事件）
-			process.PushEventToFaultCenter(t.ctx, &newEvent)
+			process.PushEventToFaultCenter(t.ctx, newEvent)
 			// 恢复后继续处理下一个事件
 			t.ctx.Redis.PendingRecover().Delete(tenantId, ruleId, fingerprint)
 			continue
