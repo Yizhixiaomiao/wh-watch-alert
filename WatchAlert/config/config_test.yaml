@@ -1,0 +1,23 @@
+# 测试环境配置文件
+
+Server:
+  port: "9001"
+  mode: "test"
+
+MySQL:
+  host: localhost
+  port: 3306
+  user: root
+  pass: ""
+  dbName: watchalert_test
+  timeout: 10s
+
+Redis:
+  host: localhost
+  port: 6379
+  pass: ""
+  database: 1
+
+Jwt:
+  expire: 18000
+  secret: "test-secret-key"

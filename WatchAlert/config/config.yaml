@@ -1,0 +1,24 @@
+Server:
+  port: "9001"
+  # release / debug / test
+  mode: "release"
+
+MySQL:
+  host: localhost
+  port: 3306
+  user: root
+  pass: 130746
+  dbName: watchalert
+  timeout: 10s
+
+Redis:
+  host: localhost
+  port: 6379
+  pass: ""
+  database: 0
+
+Jwt:
+  # 失效时间
+  expire: 18000
+  # 签名密钥 (推荐使用环境变量 WATCHALERT_JWT_SECRET)
+  WatchAlert: "WatchAlert-Secret-Key-2024"  # 生产环境请修改为强密钥

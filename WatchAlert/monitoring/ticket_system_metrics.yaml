@@ -1,0 +1,126 @@
+# 统一工单管理系统监控指标配置
+# Prometheus 监控配置文件
+
+# 业务指标定义
+metrics:
+  # 工单创建统计
+  - name: watchalert_tickets_created_total
+    type: counter
+    description: "工单创建总数"
+    labels:
+      - tenant_id
+      - ticket_type
+      - source
+
+  # 工单关闭统计
+  - name: watchalert_tickets_closed_total
+    type: counter
+    description: "工单关闭总数"
+    labels:
+      - tenant_id
+      - ticket_type
+      - close_reason
+
+  # 活跃告警工单数量
+  - name: watchalert_active_alert_tickets
+    type: gauge
+    description: "当前活跃告警工单数量"
+    labels:
+      - tenant_id
+      - priority
+
+  # 工单处理时间
+  - name: watchalert_ticket_processing_duration_seconds
+    type: histogram
+    description: "工单处理时长分布"
+    labels:
+      - tenant_id
+      - ticket_type
+      - priority
+    buckets: [60, 300, 900, 1800, 3600, 7200, 86400]
+
+  # SLA达标率
+  - name: watchalert_ticket_sla_compliance_rate
+    type: gauge
+    description: "工单SLA达标率"
+    labels:
+      - tenant_id
+      - sla_type
+
+  # 告警同步延迟
+  - name: watchalert_alert_sync_delay_seconds
+    type: histogram
+    description: "告警同步延迟分布"
+    labels:
+      - tenant_id
+    buckets: [1, 5, 10, 30, 60, 300, 600]
+
+# 告警规则定义
+alerts:
+  # 活跃告警工单过多
+  - name: WatchAlertHighActiveAlertTickets
+    expr: watchalert_active_alert_tickets > 50
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "活跃告警工单数量过多"
+      description: "租户 {{ $labels.tenant_id }} 当前有 {{ $value }} 个活跃告警工单"
+
+  # 告警同步延迟过大
+  - name: WatchAlertAlertSyncDelay
+    expr: histogram_quantile(0.95, rate(watchalert_alert_sync_delay_seconds_bucket[5m])) > 300
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "告警同步延迟过大"
+      description: "租户 {{ $labels.tenant_id }} 告警同步95分位延迟为 {{ $value }}秒"
+
+  # SLA达标率过低
+  - name: WatchAlertLowSLACompliance
+    expr: watchalert_ticket_sla_compliance_rate < 0.9
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: "SLA达标率过低"
+      description: "租户 {{ $labels.tenant_id }} {{ $labels.sla_type }} SLA达标率为 {{ $value }}"
+
+  # 工单处理时间过长
+  - name: WatchAlertLongProcessingTime
+    expr: histogram_quantile(0.95, rate(watchalert_ticket_processing_duration_seconds_bucket[1h])) > 7200
+    for: 15m
+    labels:
+      severity: warning
+    annotations:
+      summary: "工单处理时间过长"
+      description: "租户 {{ $labels.tenant_id }} 工单95分位处理时间为 {{ $value }}秒"
+
+# Grafana Dashboard 配置示例
+dashboard:
+  title: "WatchAlert 统一工单管理系统"
+  panels:
+    - title: "工单创建趋势"
+      type: graph
+      targets:
+        - expr: rate(watchalert_tickets_created_total[5m])
+          legendFormat: "{{tenant_id}} - {{ticket_type}}"
+    
+    - title: "活跃告警工单数量"
+      type: singlestat
+      targets:
+        - expr: sum(watchalert_active_alert_tickets)
+          legendFormat: "活跃告警工单"
+    
+    - title: "SLA达标率"
+      type: table
+      targets:
+        - expr: watchalert_ticket_sla_compliance_rate
+          legendFormat: "{{sla_type}} SLA"
+    
+    - title: "工单处理时长分布"
+      type: heatmap
+      targets:
+        - expr: rate(watchalert_ticket_processing_duration_seconds_bucket[1h])
+          legendFormat: "处理时长"
