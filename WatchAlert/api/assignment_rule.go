@@ -49,7 +49,10 @@ func (arc assignmentRuleController) API(gin *gin.RouterGroup) {
 // CreateRule 创建规则
 func (arc assignmentRuleController) CreateRule(ctx *gin.Context) {
 	r := new(types.RequestAssignmentRuleCreate)
-	BindJson(ctx, r)
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		response.Fail(ctx, err.Error(), "failed")
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -77,7 +80,10 @@ func (arc assignmentRuleController) CreateRule(ctx *gin.Context) {
 // UpdateRule 更新规则
 func (arc assignmentRuleController) UpdateRule(ctx *gin.Context) {
 	r := new(types.RequestAssignmentRuleUpdate)
-	BindJson(ctx, r)
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		response.Fail(ctx, err.Error(), "failed")
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -96,7 +102,10 @@ func (arc assignmentRuleController) UpdateRule(ctx *gin.Context) {
 // DeleteRule 删除规则
 func (arc assignmentRuleController) DeleteRule(ctx *gin.Context) {
 	r := new(types.RequestAssignmentRuleDelete)
-	BindJson(ctx, r)
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		response.Fail(ctx, err.Error(), "failed")
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -153,7 +162,10 @@ func (arc assignmentRuleController) ListRules(ctx *gin.Context) {
 // MatchRule 匹配规则
 func (arc assignmentRuleController) MatchRule(ctx *gin.Context) {
 	r := new(types.RequestAssignmentRuleMatch)
-	BindJson(ctx, r)
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		response.Fail(ctx, err.Error(), "failed")
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -172,7 +184,10 @@ func (arc assignmentRuleController) MatchRule(ctx *gin.Context) {
 // AutoAssign 自动分配
 func (arc assignmentRuleController) AutoAssign(ctx *gin.Context) {
 	r := new(types.RequestAutoAssign)
-	BindJson(ctx, r)
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		response.Fail(ctx, err.Error(), "failed")
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
