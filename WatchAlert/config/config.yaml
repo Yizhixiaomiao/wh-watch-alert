@@ -4,15 +4,15 @@ Server:
   mode: "release"
 
 MySQL:
-  host: localhost
+  host: w8t-mysql
   port: 3306
   user: root
-  pass: 130746
+  pass: w8t.123
   dbName: watchalert
   timeout: 10s
 
 Redis:
-  host: localhost
+  host: w8t-redis
   port: 6379
   pass: ""
   database: 0
@@ -20,5 +20,4 @@ Redis:
 Jwt:
   # 失效时间
   expire: 18000
-  # 签名密钥 (推荐使用环境变量 WATCHALERT_JWT_SECRET)
-  WatchAlert: "WatchAlert-Secret-Key-2024"  # 生产环境请修改为强密钥
+
