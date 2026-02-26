@@ -61,6 +61,7 @@ const TicketDetail = lazy(() => import("../pages/ticket/detail").then(m => ({ de
 const TicketCreate = lazy(() => import("../pages/ticket/create").then(m => ({ default: m.TicketCreate })));
 const RepairForm = lazy(() => import("../pages/ticket/repair").then(m => ({ default: m.default || m.RepairForm })));
 const TicketReview = lazy(() => import("../pages/ticket/review").then(m => ({ default: m.default || m.TicketReview })));
+const ReviewerManage = lazy(() => import("../pages/ticket/reviewer").then(m => ({ default: m.default || m.ReviewerManage })));
 const TicketStatistics = lazy(() => import("../pages/ticket/statistics").then(m => ({ default: m.TicketStatistics })));
 const TicketSlaPolicy = lazy(() => import("../pages/ticket/slaPolicy").then(m => ({ default: m.default || m.TicketSlaPolicy })));
 const TicketTemplate = lazy(() => import("../pages/ticket/template").then(m => ({ default: m.default || m.TicketTemplate })));
@@ -255,6 +256,10 @@ export default [
 {
         path: '/ticket/review',
         element: <Suspense fallback={<PageLoading />}><ComponentsContent name="工单评审" c={<TicketReview />} /></Suspense>
+    },
+    {
+        path: '/ticket/reviewer',
+        element: <Suspense fallback={<PageLoading />}><ComponentsContent name="评委管理" c={<ReviewerManage />} /></Suspense>
     },
     {
         path: '/ticket/statistics',

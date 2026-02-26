@@ -62,7 +62,10 @@ func (trc ticketReviewController) API(gin *gin.RouterGroup) {
 // AssignReviewers 分配评委
 func (trc ticketReviewController) AssignReviewers(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewAssign)
-	BindJson(ctx, r)
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		response.Fail(ctx, err.Error(), "failed")
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -90,7 +93,10 @@ func (trc ticketReviewController) AssignReviewers(ctx *gin.Context) {
 // SubmitReview 提交评审
 func (trc ticketReviewController) SubmitReview(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewSubmit)
-	BindJson(ctx, r)
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		response.Fail(ctx, err.Error(), "failed")
+		return
+	}
 
 	uid, exists := ctx.Get("UserID")
 	if !exists {
@@ -147,7 +153,10 @@ func (trc ticketReviewController) ListReviews(ctx *gin.Context) {
 // CreateReviewer 创建评委
 func (trc ticketReviewController) CreateReviewer(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewerCreate)
-	BindJson(ctx, r)
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		response.Fail(ctx, err.Error(), "failed")
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -175,7 +184,10 @@ func (trc ticketReviewController) CreateReviewer(ctx *gin.Context) {
 // UpdateReviewer 更新评委
 func (trc ticketReviewController) UpdateReviewer(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewerUpdate)
-	BindJson(ctx, r)
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		response.Fail(ctx, err.Error(), "failed")
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -194,7 +206,10 @@ func (trc ticketReviewController) UpdateReviewer(ctx *gin.Context) {
 // DeleteReviewer 删除评委
 func (trc ticketReviewController) DeleteReviewer(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewerUpdate)
-	BindJson(ctx, r)
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		response.Fail(ctx, err.Error(), "failed")
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {

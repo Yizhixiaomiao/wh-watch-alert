@@ -83,6 +83,7 @@ const allMenuItems = [
             { key: '13-2', path: '/ticket/create', label: '创建工单', permission: 'ticketCreate' },
             { key: '13-3', path: '/ticket/repair', label: '人工报修', permission: 'ticketList' },
             { key: '13-4', path: '/ticket/review', label: '工单评审', permission: 'ticketList' },
+            { key: '13-9', path: '/ticket/reviewer', label: '评委管理', permission: 'ticketList' },
             { key: '13-5', path: '/ticket/statistics', label: '工单统计', permission: 'ticketGetStatistics' },
             { key: '13-6', path: '/ticket/sla', label: 'SLA策略', permission: 'ticketList' },
             { key: '13-7', path: '/ticket/template', label: '工单模板', permission: 'ticketList' },
