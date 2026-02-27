@@ -63,7 +63,7 @@ func (trc ticketReviewController) API(gin *gin.RouterGroup) {
 // AssignReviewers 分配评委
 func (trc ticketReviewController) AssignReviewers(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewAssign)
-	if err := ctx.ShouldBindJSON(&r); err != nil {
+	if err := ctx.ShouldBindJSON(r); err != nil {
 		response.Fail(ctx, err.Error(), "failed")
 		return
 	}
@@ -94,7 +94,7 @@ func (trc ticketReviewController) AssignReviewers(ctx *gin.Context) {
 // SubmitReview 提交评审
 func (trc ticketReviewController) SubmitReview(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewSubmit)
-	if err := ctx.ShouldBindJSON(&r); err != nil {
+	if err := ctx.ShouldBindJSON(r); err != nil {
 		response.Fail(ctx, err.Error(), "failed")
 		return
 	}
@@ -154,7 +154,7 @@ func (trc ticketReviewController) ListReviews(ctx *gin.Context) {
 // CreateReviewer 创建评委
 func (trc ticketReviewController) CreateReviewer(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewerCreate)
-	if err := ctx.ShouldBindJSON(&r); err != nil {
+	if err := ctx.ShouldBindJSON(r); err != nil {
 		response.Fail(ctx, err.Error(), "failed")
 		return
 	}
@@ -185,7 +185,7 @@ func (trc ticketReviewController) CreateReviewer(ctx *gin.Context) {
 // UpdateReviewer 更新评委
 func (trc ticketReviewController) UpdateReviewer(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewerUpdate)
-	if err := ctx.ShouldBindJSON(&r); err != nil {
+	if err := ctx.ShouldBindJSON(r); err != nil {
 		response.Fail(ctx, err.Error(), "failed")
 		return
 	}
@@ -207,7 +207,7 @@ func (trc ticketReviewController) UpdateReviewer(ctx *gin.Context) {
 // DeleteReviewer 删除评委
 func (trc ticketReviewController) DeleteReviewer(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewerUpdate)
-	if err := ctx.ShouldBindJSON(&r); err != nil {
+	if err := ctx.ShouldBindJSON(r); err != nil {
 		response.Fail(ctx, err.Error(), "failed")
 		return
 	}

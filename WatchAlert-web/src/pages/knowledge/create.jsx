@@ -22,6 +22,7 @@ import {
     getKnowledgeCategories,
 } from "../../api/knowledge"
 import { HandleApiError } from "../../utils/lib"
+import { clearCacheByUrl } from "../../utils/http"
 import { useNavigate } from "react-router-dom"
 
 const { TextArea } = Input
@@ -62,6 +63,9 @@ export const KnowledgeCreate = () => {
                 status: "published",
             })
             message.success("知识创建成功")
+            // 清除缓存
+            clearCacheByUrl('/api/w8t/knowledge')
+            clearCacheByUrl('/api/w8t/knowledge/list')
             navigate("/knowledge")
         } catch (error) {
             HandleApiError(error)

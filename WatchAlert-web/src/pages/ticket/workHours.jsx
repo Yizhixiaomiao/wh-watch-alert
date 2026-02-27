@@ -19,6 +19,7 @@ import {
     DeleteOutlined,
 } from "@ant-design/icons"
 import { TableWithPagination } from "../../utils/TableWithPagination"
+import { clearCacheByUrl } from "../../utils/http"
 
 const { TextArea } = Input
 
@@ -38,7 +39,8 @@ export const WorkHoursStandard = () => {
     const fetchList = async () => {
         setLoading(true)
         try {
-            const response = await fetch('/api/w8t/work-hours/standard/list', {
+            // 添加时间戳防止缓存
+            const response = await fetch(`/api/w8t/work-hours/standard/list?_t=${Date.now()}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -96,6 +98,7 @@ export const WorkHoursStandard = () => {
             const data = await response.json()
             if (data.code === 200) {
                 message.success('删除成功')
+                clearCacheByUrl('/api/w8t/work-hours')
                 fetchList()
             } else {
                 message.error(data.msg || '删除失败')
@@ -122,6 +125,7 @@ export const WorkHoursStandard = () => {
             if (data.code === 200) {
                 message.success(isEdit ? '更新成功' : '创建成功')
                 setModalVisible(false)
+                clearCacheByUrl('/api/w8t/work-hours')
                 fetchList()
             } else {
                 message.error(data.msg || '操作失败')

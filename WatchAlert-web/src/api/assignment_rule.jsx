@@ -6,42 +6,30 @@ import { HandleApiError } from "../utils/lib";
 async function createAssignmentRule(params) {
     try {
         const res = await http('post', '/api/w8t/assignment-rule/create', params);
-        message.open({
-            type: 'success',
-            content: '分配规则创建成功',
-        });
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
 async function updateAssignmentRule(params) {
     try {
         const res = await http('post', '/api/w8t/assignment-rule/update', params);
-        message.open({
-            type: 'success',
-            content: '分配规则更新成功',
-        });
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
 async function deleteAssignmentRule(params) {
     try {
         const res = await http('post', '/api/w8t/assignment-rule/delete', params);
-        message.open({
-            type: 'success',
-            content: '分配规则删除成功',
-        });
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
@@ -51,17 +39,17 @@ async function getAssignmentRule(params) {
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
-async function getAssignmentRules(params) {
+async function getAssignmentRules(params, options = {}) {
     try {
-        const res = await http('get', '/api/w8t/assignment-rule/list', params);
+        const res = await http('get', '/api/w8t/assignment-rule/list', params, options);
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
@@ -71,21 +59,17 @@ async function matchAssignmentRule(params) {
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
 async function autoAssignTicket(params) {
     try {
         const res = await http('post', '/api/w8t/assignment-rule/auto-assign', params);
-        message.open({
-            type: 'success',
-            content: '工单自动分配成功',
-        });
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 

@@ -251,6 +251,7 @@ export const TicketList = () => {
             const res = await deleteTicket({ ticketId })
             message.success('工单删除成功')
             clearCacheByUrl('/api/w8t/ticket')
+            clearCacheByUrl('/api/w8t/ticket/list')
             await handleList(pagination.index, pagination.size)
         } catch (error) {
             HandleApiError(error)
@@ -262,6 +263,8 @@ export const TicketList = () => {
         try {
             await claimTicket({ ticketId })
             message.success('工单认领成功')
+            clearCacheByUrl('/api/w8t/ticket')
+            clearCacheByUrl('/api/w8t/ticket/list')
             await handleList(pagination.index, pagination.size)
         } catch (error) {
             HandleApiError(error)

@@ -42,9 +42,9 @@ func (s ticketReviewService) AssignReviewers(req interface{}) (interface{}, inte
 		return nil, fmt.Errorf("工单不存在")
 	}
 
-	// 验证工单状态
-	if ticket.Status != models.TicketStatusVerifying {
-		return nil, fmt.Errorf("工单状态为 %s，不能分配评委。工单必须处于验证状态", ticket.Status)
+	// 验证工单状态 - 工单状态为已解决的才能分配评委
+	if ticket.Status != models.TicketStatusResolved {
+		return nil, fmt.Errorf("工单状态为 %s，不能分配评委。工单必须处于已解决状态", ticket.Status)
 	}
 
 	// 为每个评委创建评审记录

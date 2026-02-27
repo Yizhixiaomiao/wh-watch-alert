@@ -6,14 +6,10 @@ import { HandleApiError } from "../utils/lib";
 async function createKnowledge(params) {
     try {
         const res = await http('post', '/api/w8t/knowledge/create', params);
-        message.open({
-            type: 'success',
-            content: '知识创建成功',
-        });
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
@@ -23,7 +19,7 @@ async function updateKnowledge(params) {
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
@@ -33,7 +29,7 @@ async function deleteKnowledge(params) {
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
@@ -43,17 +39,17 @@ async function getKnowledge(params) {
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
-async function getKnowledges(params) {
+async function getKnowledges(params, options = {}) {
     try {
-        const res = await http('get', '/api/w8t/knowledge/list', params);
+        const res = await http('get', '/api/w8t/knowledge/list', params, options);
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
@@ -63,21 +59,17 @@ async function likeKnowledge(params) {
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
 async function saveKnowledgeToTicket(params) {
     try {
         const res = await http('post', '/api/w8t/knowledge/save-to-ticket', params);
-        message.open({
-            type: 'success',
-            content: '知识已添加到工单',
-        });
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
@@ -85,42 +77,30 @@ async function saveKnowledgeToTicket(params) {
 async function createKnowledgeCategory(params) {
     try {
         const res = await http('post', '/api/w8t/knowledge/category/create', params);
-        message.open({
-            type: 'success',
-            content: '分类创建成功',
-        });
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
 async function updateKnowledgeCategory(params) {
     try {
         const res = await http('post', '/api/w8t/knowledge/category/update', params);
-        message.open({
-            type: 'success',
-            content: '分类更新成功',
-        });
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
 async function deleteKnowledgeCategory(params) {
     try {
         const res = await http('post', '/api/w8t/knowledge/category/delete', params);
-        message.open({
-            type: 'success',
-            content: '分类删除成功',
-        });
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
@@ -130,7 +110,7 @@ async function getKnowledgeCategory(params) {
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 
@@ -140,7 +120,7 @@ async function getKnowledgeCategories(params, options = {}) {
         return res;
     } catch (error) {
         HandleApiError(error);
-        return error;
+        throw error;
     }
 }
 

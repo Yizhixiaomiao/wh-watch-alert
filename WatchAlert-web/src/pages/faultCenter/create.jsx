@@ -2,6 +2,7 @@ import {Modal, Form, Input, Button, Select, Drawer, Divider} from 'antd'
 import React, { useState, useEffect } from 'react'
 import {FaultCenterCreate} from "../../api/faultCenter";
 import {getNoticeList} from "../../api/notice";
+import {clearCacheByUrl} from "../../utils/http";
 const MyFormItemContext = React.createContext([])
 
 function toArr(str) {
@@ -51,7 +52,9 @@ export const CreateFaultCenter = ({ visible, onClose, handleList }) => {
     const handleCreate = async (data) => {
         try {
             await FaultCenterCreate(data)
-            handleList()
+            clearCacheByUrl('/api/w8t/faultCenter')
+            clearCacheByUrl('/api/w8t/faultCenter/list')
+            handleList(true)
         } catch (error) {
             console.error(error)
         }
