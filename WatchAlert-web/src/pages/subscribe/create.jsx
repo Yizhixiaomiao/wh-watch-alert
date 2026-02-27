@@ -13,6 +13,7 @@ import ESImg from "../alert/rule/img/ElasticSearch.svg";
 import VLogImg from "../alert/rule/img/victorialogs.svg"
 import {createSubscribe} from "../../api/subscribe";
 import {getNoticeTmplList} from "../../api/noticeTmpl";
+import {clearCacheByUrl} from "../../utils/http";
 
 const MyFormItemContext = React.createContext([])
 

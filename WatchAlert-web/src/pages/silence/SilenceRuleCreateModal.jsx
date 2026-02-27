@@ -6,6 +6,7 @@ import moment from "moment"
 import { createSilence, updateSilence } from "../../api/silence"
 import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons"
 import {HandleApiError} from "../../utils/lib";
+import {clearCacheByUrl} from "../../utils/http";
 
 const { RangePicker } = DatePicker
 const { Option } = Select

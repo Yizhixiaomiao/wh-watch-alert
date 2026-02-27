@@ -619,19 +619,6 @@ func (s ticketService) GetStatistics(req interface{}) (interface{}, interface{})
 		userQuery = userQuery.Where("created_at <= ?", r.EndTime)
 	}
 
-	// 根据维度选择时间聚合方式
-	var dateFormat string
-	switch r.Dimension {
-	case "year":
-		dateFormat = "%Y"
-	case "month":
-		dateFormat = "%Y-%m"
-	case "day":
-		dateFormat = "%Y-%m-%d"
-	default:
-		dateFormat = "%Y-%m"
-	}
-
 	userQuery.Select("assigned_to as user_id, assigned_to as user_name, COUNT(*) as ticket_count, AVG(response_time) as avg_response_time, AVG(resolution_time) as avg_resolution").
 		Group("assigned_to").
 		Scan(&userStats)

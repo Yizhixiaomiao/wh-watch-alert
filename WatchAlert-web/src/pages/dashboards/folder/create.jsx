@@ -2,6 +2,7 @@ import {Modal, Form, Input, Button, Segmented, Drawer, Radio} from 'antd'
 import React, {useEffect, useState} from 'react'
 import {createDashboardFolder, updateDashboardFolder} from '../../../api/dashboard';
 import {DownOutlined, RightOutlined} from "@ant-design/icons";
+import {clearCacheByUrl} from "../../../utils/http";
 
 const MyFormItemContext = React.createContext([])
 
