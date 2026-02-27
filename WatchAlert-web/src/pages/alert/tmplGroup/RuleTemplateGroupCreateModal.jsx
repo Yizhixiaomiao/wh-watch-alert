@@ -1,6 +1,7 @@
 import { Modal, Form, Input, Button } from 'antd'
 import React, { useState, useEffect } from 'react'
 import {createRuleTmplGroup, updateRuleTmplGroup} from '../../../api/ruleTmpl'
+import { clearCacheByUrl } from '../../../utils/http'
 
 const MyFormItemContext = React.createContext([])
 
@@ -52,7 +53,9 @@ const RuleTemplateGroupCreateModal = ({ visible, onClose, selectedRow, openType,
                 type: tmplType,
             }
             await createRuleTmplGroup(params)
-            handleList()
+            clearCacheByUrl('/api/w8t/ruleTmplGroup')
+            clearCacheByUrl('/api/w8t/ruleTmplGroup/list')
+            handleList(true)
         } catch (error) {
             console.error(error)
         }
@@ -66,7 +69,9 @@ const RuleTemplateGroupCreateModal = ({ visible, onClose, selectedRow, openType,
                 type: selectedRow.type,
             }
             await updateRuleTmplGroup(params)
-            handleList()
+            clearCacheByUrl('/api/w8t/ruleTmplGroup')
+            clearCacheByUrl('/api/w8t/ruleTmplGroup/list')
+            handleList(true)
         } catch (error) {
             console.error(error)
         }

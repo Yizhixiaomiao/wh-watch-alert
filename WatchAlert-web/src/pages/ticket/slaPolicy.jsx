@@ -20,6 +20,7 @@ import {
     DeleteOutlined,
 } from "@ant-design/icons"
 import { TableWithPagination } from "../../utils/TableWithPagination"
+import { clearCacheByUrl } from "../../utils/http"
 
 const { TextArea } = Input
 
@@ -51,16 +52,20 @@ export const TicketSlaPolicy = () => {
         P4: { color: "default", text: "P4-最低" },
     }
 
-    const fetchList = async () => {
+    const fetchList = async (skipCache = false) => {
         setLoading(true)
         try {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('Authorization')}`,
+                'TenantID': localStorage.getItem('TenantID'),
+            }
+            if (skipCache) {
+                headers['skipCache'] = 'true'
+            }
             const response = await fetch('/api/w8t/ticket/sla/list', {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('Authorization')}`,
-                    'TenantID': localStorage.getItem('TenantID'),
-                }
+                headers
             })
             const data = await response.json()
             if (data.code === 200) {
@@ -112,7 +117,9 @@ export const TicketSlaPolicy = () => {
             const data = await response.json()
             if (data.code === 200) {
                 message.success('删除成功')
-                fetchList()
+                clearCacheByUrl('/api/w8t/ticket/sla')
+                clearCacheByUrl('/api/w8t/ticket/sla/list')
+                fetchList(true)
             } else {
                 message.error(data.msg || '删除失败')
             }
@@ -138,7 +145,9 @@ export const TicketSlaPolicy = () => {
             if (data.code === 200) {
                 message.success(isEdit ? '更新成功' : '创建成功')
                 setModalVisible(false)
-                fetchList()
+                clearCacheByUrl('/api/w8t/ticket/sla')
+                clearCacheByUrl('/api/w8t/ticket/sla/list')
+                fetchList(true)
             } else {
                 message.error(data.msg || '操作失败')
             }

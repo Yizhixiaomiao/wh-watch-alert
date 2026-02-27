@@ -4,7 +4,7 @@ import "watchAlert/internal/models"
 
 // RequestAssignmentRuleCreate 创建分配规则请求
 type RequestAssignmentRuleCreate struct {
-	TenantId       string                      `json:"tenantId" binding:"required"`
+	TenantId       string                      `json:"tenantId"`
 	Name           string                      `json:"name" binding:"required"`
 	RuleType       models.AssignmentRuleType   `json:"ruleType" binding:"required"`
 	AlertType      string                      `json:"alertType"`

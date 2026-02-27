@@ -609,28 +609,75 @@ func (s ticketService) GetStatistics(req interface{}) (interface{}, interface{})
 
 	// 获取用户效率统计
 	var userStats []types.ResponseTicketUserStats
-	s.ctx.DB.DB().Model(&models.Ticket{}).
-		Select("assigned_to as user_id, assigned_to as user_name, COUNT(*) as ticket_count, AVG(response_time) as avg_response_time, AVG(resolution_time) as avg_resolution").
-		Where("tenant_id = ? AND assigned_to != ''", r.TenantId).
+	userQuery := s.ctx.DB.DB().Model(&models.Ticket{}).
+		Where("tenant_id = ? AND assigned_to != ''", r.TenantId)
+
+	if r.StartTime > 0 {
+		userQuery = userQuery.Where("created_at >= ?", r.StartTime)
+	}
+	if r.EndTime > 0 {
+		userQuery = userQuery.Where("created_at <= ?", r.EndTime)
+	}
+
+	// 根据维度选择时间聚合方式
+	var dateFormat string
+	switch r.Dimension {
+	case "year":
+		dateFormat = "%Y"
+	case "month":
+		dateFormat = "%Y-%m"
+	case "day":
+		dateFormat = "%Y-%m-%d"
+	default:
+		dateFormat = "%Y-%m"
+	}
+
+	userQuery.Select("assigned_to as user_id, assigned_to as user_name, COUNT(*) as ticket_count, AVG(response_time) as avg_response_time, AVG(resolution_time) as avg_resolution").
 		Group("assigned_to").
 		Scan(&userStats)
 
 	for i := range userStats {
 		if userStats[i].TicketCount > 0 {
 			var userNotOverdueCount int64
-			s.ctx.DB.DB().Model(&models.Ticket{}).
-				Where("tenant_id = ? AND assigned_to = ? AND is_overdue = ?", r.TenantId, userStats[i].UserId, false).
-				Count(&userNotOverdueCount)
+			userOverdueQuery := s.ctx.DB.DB().Model(&models.Ticket{}).
+				Where("tenant_id = ? AND assigned_to = ? AND is_overdue = ?", r.TenantId, userStats[i].UserId, false)
+			if r.StartTime > 0 {
+				userOverdueQuery = userOverdueQuery.Where("created_at >= ?", r.StartTime)
+			}
+			if r.EndTime > 0 {
+				userOverdueQuery = userOverdueQuery.Where("created_at <= ?", r.EndTime)
+			}
+			userOverdueQuery.Count(&userNotOverdueCount)
 			userStats[i].SLARate = float64(userNotOverdueCount) / float64(userStats[i].TicketCount)
 		}
 	}
 
 	// 获取趋势数据
 	var trendData []types.ResponseTicketTrendData
-	s.ctx.DB.DB().Model(&models.Ticket{}).
-		Select("DATE(FROM_UNIXTIME(created_at)) as date, COUNT(*) as count, SUM(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 ELSE 0 END) as resolved").
-		Where("tenant_id = ?", r.TenantId).
-		Group("DATE(FROM_UNIXTIME(created_at))").
+	trendQuery := s.ctx.DB.DB().Model(&models.Ticket{}).
+		Where("tenant_id = ?", r.TenantId)
+	if r.StartTime > 0 {
+		trendQuery = trendQuery.Where("created_at >= ?", r.StartTime)
+	}
+	if r.EndTime > 0 {
+		trendQuery = trendQuery.Where("created_at <= ?", r.EndTime)
+	}
+	
+	// 根据维度选择时间聚合方式
+	var trendDateFormat string
+	switch r.Dimension {
+	case "year":
+		trendDateFormat = "%Y"
+	case "month":
+		trendDateFormat = "%Y-%m"
+	case "day":
+		trendDateFormat = "%Y-%m-%d"
+	default:
+		trendDateFormat = "%Y-%m-%d"
+	}
+	
+	trendQuery.Select(fmt.Sprintf("DATE_FORMAT(FROM_UNIXTIME(created_at), '%s') as date, COUNT(*) as count, SUM(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 ELSE 0 END) as resolved", trendDateFormat)).
+		Group(fmt.Sprintf("DATE_FORMAT(FROM_UNIXTIME(created_at), '%s')", trendDateFormat)).
 		Order("date ASC").
 		Scan(&trendData)
 

@@ -68,7 +68,9 @@ export const CreateSilenceModal = ({ visible, onClose, selectedRow, type, handle
     const handleCreate = useCallback(async (data) => {
             try {
                 await createSilence(data)
-                await handleList()
+                clearCacheByUrl('/api/w8t/silence')
+                clearCacheByUrl('/api/w8t/silence/list')
+                await handleList(1, 10, true)
             } catch (error) {
                 HandleApiError(error)
                 throw error
@@ -81,7 +83,9 @@ export const CreateSilenceModal = ({ visible, onClose, selectedRow, type, handle
     const handleUpdate = useCallback(async (data) => {
             try {
                 await updateSilence(data)
-                await handleList()
+                clearCacheByUrl('/api/w8t/silence')
+                clearCacheByUrl('/api/w8t/silence/list')
+                await handleList(1, 10, true)
             } catch (error) {
                 HandleApiError(error)
                 throw error

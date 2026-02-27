@@ -59,7 +59,9 @@ const CreateFolderModal = ({ visible, onClose, selectedRow, type, handleList }) 
         }
         try {
             await createDashboardFolder(params)
-            await handleList()
+            clearCacheByUrl('/api/w8t/dashboard/folder')
+            clearCacheByUrl('/api/w8t/dashboard/folder/list')
+            await handleList(true)
             form.resetFields();
         } catch (error) {
             console.error(error)
@@ -75,7 +77,9 @@ const CreateFolderModal = ({ visible, onClose, selectedRow, type, handleList }) 
                 grafanaFolderId: data.grafanaFolderId,
             }
             await updateDashboardFolder(params)
-            await handleList()
+            clearCacheByUrl('/api/w8t/dashboard/folder')
+            clearCacheByUrl('/api/w8t/dashboard/folder/list')
+            await handleList(true)
             form.resetFields();
         } catch (error) {
             console.error(error)

@@ -44,17 +44,19 @@ export const TicketStatistics = () => {
     ])
     const [statistics, setStatistics] = useState(null)
     const [trendPeriod, setTrendPeriod] = useState('day')
+    const [userStatsPeriod, setUserStatsPeriod] = useState('month')
 
     useEffect(() => {
         fetchStatistics()
-    }, [dateRange])
+    }, [dateRange, userStatsPeriod])
 
     const fetchStatistics = async () => {
         try {
             setLoading(true)
             const params = {
                 startTime: dateRange[0].unix(),
-                endTime: dateRange[1].unix()
+                endTime: dateRange[1].unix(),
+                dimension: userStatsPeriod
             }
             const res = await getTicketStatistics(params)
             if (res && res.data) {
@@ -93,6 +95,25 @@ export const TicketStatistics = () => {
         message.success("导出成功")
     }
 
+    const statusMap = {
+        'Pending': '待处理',
+        'Assigned': '已分配',
+        'Processing': '处理中',
+        'Verifying': '验证中',
+        'Resolved': '已解决',
+        'Closed': '已关闭',
+        'Cancelled': '已取消',
+        'Escalated': '已升级',
+    }
+
+    const priorityMap = {
+        'P0': 'P0 - 最高',
+        'P1': 'P1 - 高',
+        'P2': 'P2 - 中',
+        'P3': 'P3 - 低',
+        'P4': 'P4 - 最低',
+    }
+
     const priorityOption = {
         tooltip: {
             trigger: 'item',
@@ -109,7 +130,7 @@ export const TicketStatistics = () => {
                 type: 'pie',
                 radius: ['50%', '70%'],
                 data: statistics?.priorityStats ? Object.entries(statistics.priorityStats).map(([key, value]) => ({
-                    name: key,
+                    name: priorityMap[key] || key,
                     value: value
                 })) : [],
                 emphasis: {
@@ -139,7 +160,7 @@ export const TicketStatistics = () => {
                 type: 'pie',
                 radius: ['50%', '70%'],
                 data: statistics?.statusStats ? Object.entries(statistics.statusStats).map(([key, value]) => ({
-                    name: key,
+                    name: statusMap[key] || key,
                     value: value
                 })) : [],
                 emphasis: {
@@ -398,7 +419,20 @@ export const TicketStatistics = () => {
 
                 <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
                     <Col span={24}>
-                        <Card title="用户效率统计">
+                        <Card 
+                            title="用户效率统计"
+                            extra={
+                                <Select
+                                    value={userStatsPeriod}
+                                    onChange={setUserStatsPeriod}
+                                    style={{ width: 120 }}
+                                >
+                                    <Option value="day">按日</Option>
+                                    <Option value="month">按月</Option>
+                                    <Option value="year">按年</Option>
+                                </Select>
+                            }
+                        >
                             <Table
                                 columns={userColumns}
                                 dataSource={statistics?.userStats || []}

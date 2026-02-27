@@ -99,6 +99,11 @@ export const CreateSubscribeModel = ({ visible, onClose, selectedRow, type, hand
     const handleCreate = async (data) => {
         try {
             await createSubscribe(data)
+            clearCacheByUrl('/api/w8t/subscribe')
+            clearCacheByUrl('/api/w8t/subscribe/list')
+            if (handleList) {
+                await handleList(true)
+            }
         } catch (error) {
             console.error(error)
         }

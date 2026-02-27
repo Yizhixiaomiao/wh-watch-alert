@@ -92,7 +92,7 @@ const UserCreateModal = ({ visible, onClose, selectedRow, type, handleList }) =>
             message.success("用户创建成功！")
             clearCacheByUrl('/api/w8t/user')
             clearCacheByUrl('/api/w8t/user/userList')
-            await handleList()
+            await handleList(true)
         } catch (error) {
             console.error(error)
             message.error("用户创建失败。")
@@ -106,7 +106,7 @@ const UserCreateModal = ({ visible, onClose, selectedRow, type, handleList }) =>
             message.success("用户更新成功！")
             clearCacheByUrl('/api/w8t/user')
             clearCacheByUrl('/api/w8t/user/userList')
-            await handleList()
+            await handleList(true)
         } catch (error) {
             console.error(error)
             message.error("用户更新失败。")

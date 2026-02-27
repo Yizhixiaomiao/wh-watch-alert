@@ -350,9 +350,9 @@ export const TicketReview = () => {
                         <Select
                             mode="multiple"
                             placeholder="请选择评委"
-                            options={reviewers.map(r => ({
-                                label: `${r.userName} (${r.department})`,
-                                value: r.reviewerId,
+                            options={users.map(u => ({
+                                label: u.username || u.userid,
+                                value: u.userid,
                             }))}
                             filterOption={(input, option) =>
                                 option.label.toLowerCase().includes(input.toLowerCase())

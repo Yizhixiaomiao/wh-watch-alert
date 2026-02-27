@@ -167,6 +167,7 @@ type RequestTicketStatistics struct {
 	TenantId  string `json:"tenantId" form:"tenantId"`
 	StartTime int64  `json:"startTime" form:"startTime"`
 	EndTime   int64  `json:"endTime" form:"endTime"`
+	Dimension string `json:"dimension" form:"dimension"`
 }
 
 // RequestTicketTemplateCreate 创建工单模板请求

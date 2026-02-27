@@ -63,7 +63,7 @@ type RequestKnowledgeSaveToTicket struct {
 
 // RequestKnowledgeCategoryCreate 创建知识分类请求
 type RequestKnowledgeCategoryCreate struct {
-	TenantId     string `json:"tenantId" binding:"required"`
+	TenantId     string `json:"tenantId"`
 	Name         string `json:"name" binding:"required"`
 	Description  string `json:"description"`
 	DisplayOrder int    `json:"displayOrder"`
