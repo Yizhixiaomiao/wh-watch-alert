@@ -519,7 +519,9 @@ func (tc ticketController) GetStatistics(ctx *gin.Context) {
 // CreateTemplate 创建工单模板
 func (tc ticketController) CreateTemplate(ctx *gin.Context) {
 	r := new(types.RequestTicketTemplateCreate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -547,7 +549,9 @@ func (tc ticketController) CreateTemplate(ctx *gin.Context) {
 // UpdateTemplate 更新工单模板
 func (tc ticketController) UpdateTemplate(ctx *gin.Context) {
 	r := new(types.RequestTicketTemplateUpdate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -566,7 +570,9 @@ func (tc ticketController) UpdateTemplate(ctx *gin.Context) {
 // DeleteTemplate 删除工单模板
 func (tc ticketController) DeleteTemplate(ctx *gin.Context) {
 	r := new(types.RequestTicketTemplateDelete)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -585,7 +591,9 @@ func (tc ticketController) DeleteTemplate(ctx *gin.Context) {
 // ListTemplates 获取工单模板列表
 func (tc ticketController) ListTemplates(ctx *gin.Context) {
 	r := new(types.RequestTicketTemplateQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -604,7 +612,9 @@ func (tc ticketController) ListTemplates(ctx *gin.Context) {
 // CreateSLAPolicy 创建SLA策略
 func (tc ticketController) CreateSLAPolicy(ctx *gin.Context) {
 	r := new(types.RequestTicketSLAPolicyCreate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -632,7 +642,9 @@ func (tc ticketController) CreateSLAPolicy(ctx *gin.Context) {
 // UpdateSLAPolicy 更新SLA策略
 func (tc ticketController) UpdateSLAPolicy(ctx *gin.Context) {
 	r := new(types.RequestTicketSLAPolicyUpdate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -651,7 +663,9 @@ func (tc ticketController) UpdateSLAPolicy(ctx *gin.Context) {
 // DeleteSLAPolicy 删除SLA策略
 func (tc ticketController) DeleteSLAPolicy(ctx *gin.Context) {
 	r := new(types.RequestTicketSLAPolicyDelete)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -670,7 +684,9 @@ func (tc ticketController) DeleteSLAPolicy(ctx *gin.Context) {
 // ListSLAPolicies 获取SLA策略列表
 func (tc ticketController) ListSLAPolicies(ctx *gin.Context) {
 	r := new(types.RequestTicketSLAPolicyQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -689,7 +705,9 @@ func (tc ticketController) ListSLAPolicies(ctx *gin.Context) {
 // MobileCreate 移动端创建工单
 func (tc ticketController) MobileCreate(ctx *gin.Context) {
 	r := new(types.RequestMobileTicketCreate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	// 设置默认值
 	if r.TenantId == "" {
@@ -714,7 +732,9 @@ func (tc ticketController) MobileCreate(ctx *gin.Context) {
 // MobileQuery 移动端查询工单状态
 func (tc ticketController) MobileQuery(ctx *gin.Context) {
 	r := new(types.RequestMobileTicketQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	// 设置默认租户ID
 	if r.TenantId == "" {
@@ -751,7 +771,9 @@ func detectPlatform(userAgent string) string {
 // AddStep 添加处理步骤
 func (tc ticketController) AddStep(ctx *gin.Context) {
 	r := new(types.RequestTicketStepCreate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -779,7 +801,9 @@ func (tc ticketController) AddStep(ctx *gin.Context) {
 // UpdateStep 更新处理步骤
 func (tc ticketController) UpdateStep(ctx *gin.Context) {
 	r := new(types.RequestTicketStepUpdate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -798,7 +822,9 @@ func (tc ticketController) UpdateStep(ctx *gin.Context) {
 // DeleteStep 删除处理步骤
 func (tc ticketController) DeleteStep(ctx *gin.Context) {
 	r := new(types.RequestTicketStepDelete)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -817,7 +843,9 @@ func (tc ticketController) DeleteStep(ctx *gin.Context) {
 // ReorderSteps 重新排序步骤
 func (tc ticketController) ReorderSteps(ctx *gin.Context) {
 	r := new(types.RequestTicketStepReorder)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -836,7 +864,9 @@ func (tc ticketController) ReorderSteps(ctx *gin.Context) {
 // GetSteps 获取处理步骤列表
 func (tc ticketController) GetSteps(ctx *gin.Context) {
 	r := new(types.RequestTicketStepsQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {

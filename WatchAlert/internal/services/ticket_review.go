@@ -19,13 +19,6 @@ type InterTicketReviewService interface {
 	SubmitReview(req interface{}) (interface{}, interface{})
 	GetReview(req interface{}) (interface{}, interface{})
 	ListReviews(req interface{}) (interface{}, interface{})
-
-	// 评委操作
-	CreateReviewer(req interface{}) (interface{}, interface{})
-	UpdateReviewer(req interface{}) (interface{}, interface{})
-	DeleteReviewer(req interface{}) (interface{}, interface{})
-	GetReviewer(req interface{}) (interface{}, interface{})
-	ListReviewers(req interface{}) (interface{}, interface{})
 }
 
 func newInterTicketReviewService(ctx *ctx.Context) InterTicketReviewService {
@@ -116,107 +109,6 @@ func (s ticketReviewService) ListReviews(req interface{}) (interface{}, interfac
 
 	return types.ResponseTicketReviewList{
 		List:  reviews,
-		Total: total,
-	}, nil
-}
-
-// CreateReviewer 创建评委
-func (s ticketReviewService) CreateReviewer(req interface{}) (interface{}, interface{}) {
-	r := req.(*types.RequestTicketReviewerCreate)
-
-	reviewer := models.TicketReviewer{
-		TenantId:   r.TenantId,
-		ReviewerId: r.ReviewerId,
-		UserName:   r.UserName,
-		Email:      r.Email,
-		Phone:      r.Phone,
-		Department: r.Department,
-		Specialty:  r.Specialty,
-		IsActive:   true,
-		CreatedAt:  time.Now().Unix(),
-		UpdatedAt:  time.Now().Unix(),
-	}
-
-	err := s.ctx.DB.TicketReview().CreateReviewer(reviewer)
-	if err != nil {
-		return nil, err
-	}
-
-	return nil, nil
-}
-
-// UpdateReviewer 更新评委
-func (s ticketReviewService) UpdateReviewer(req interface{}) (interface{}, interface{}) {
-	r := req.(*types.RequestTicketReviewerUpdate)
-
-	reviewer, err := s.ctx.DB.TicketReview().GetReviewer(r.TenantId, r.ReviewerId)
-	if err != nil {
-		return nil, fmt.Errorf("评委不存在")
-	}
-
-	if r.UserName != "" {
-		reviewer.UserName = r.UserName
-	}
-	if r.Email != "" {
-		reviewer.Email = r.Email
-	}
-	if r.Phone != "" {
-		reviewer.Phone = r.Phone
-	}
-	if r.Department != "" {
-		reviewer.Department = r.Department
-	}
-	if r.Specialty != "" {
-		reviewer.Specialty = r.Specialty
-	}
-	if r.IsActive != nil {
-		reviewer.IsActive = *r.IsActive
-	}
-	reviewer.UpdatedAt = time.Now().Unix()
-
-	err = s.ctx.DB.TicketReview().UpdateReviewer(reviewer)
-	if err != nil {
-		return nil, err
-	}
-
-	return nil, nil
-}
-
-// DeleteReviewer 删除评委
-func (s ticketReviewService) DeleteReviewer(req interface{}) (interface{}, interface{}) {
-	r := req.(*types.RequestTicketReviewerUpdate)
-
-	err := s.ctx.DB.TicketReview().DeleteReviewer(r.TenantId, r.ReviewerId)
-	if err != nil {
-		return nil, err
-	}
-
-	return nil, nil
-}
-
-// GetReviewer 获取评委详情
-func (s ticketReviewService) GetReviewer(req interface{}) (interface{}, interface{}) {
-	r := req.(*types.RequestTicketReviewerQuery)
-
-	reviewer, err := s.ctx.DB.TicketReview().GetReviewer(r.TenantId, r.ReviewerId)
-	if err != nil {
-		return nil, err
-	}
-
-	return reviewer, nil
-}
-
-// ListReviewers 获取评委列表
-func (s ticketReviewService) ListReviewers(req interface{}) (interface{}, interface{}) {
-	r := req.(*types.RequestTicketReviewerQuery)
-
-	reviewers, total, err := s.ctx.DB.TicketReview().ListReviewers(r.TenantId, r.Department, r.Specialty, r.IsActive, r.Page, r.Size)
-	if err != nil {
-		return nil, err
-	}
-
-	return types.ResponseTicketReviewerList{
-		List:  reviewers,
 		Total: total,
 	}, nil
 }

@@ -30,49 +30,8 @@ type RequestTicketReviewQuery struct {
 	Size       int                       `json:"size" form:"size"`
 }
 
-// RequestTicketReviewerCreate 创建评委请求
-type RequestTicketReviewerCreate struct {
-	TenantId   string `json:"tenantId" binding:"required"`
-	ReviewerId string `json:"reviewerId" binding:"required"`
-	UserName   string `json:"userName" binding:"required"`
-	Email      string `json:"email"`
-	Phone      string `json:"phone"`
-	Department string `json:"department"`
-	Specialty  string `json:"specialty"`
-	CreatedBy  string `json:"createdBy"`
-}
-
-// RequestTicketReviewerUpdate 更新评委请求
-type RequestTicketReviewerUpdate struct {
-	TenantId   string `json:"tenantId"`
-	ReviewerId string `json:"reviewerId" binding:"required"`
-	UserName   string `json:"userName"`
-	Email      string `json:"email"`
-	Phone      string `json:"phone"`
-	Department string `json:"department"`
-	Specialty  string `json:"specialty"`
-	IsActive   *bool  `json:"isActive"`
-}
-
-// RequestTicketReviewerQuery 查询评委请求
-type RequestTicketReviewerQuery struct {
-	TenantId   string `json:"tenantId" form:"tenantId"`
-	ReviewerId string `json:"reviewerId" form:"reviewerId"`
-	Department string `json:"department" form:"department"`
-	Specialty  string `json:"specialty" form:"specialty"`
-	IsActive   *bool  `json:"isActive" form:"isActive"`
-	Page       int    `json:"page" form:"page"`
-	Size       int    `json:"size" form:"size"`
-}
-
 // ResponseTicketReviewList 评审列表响应
 type ResponseTicketReviewList struct {
 	List  []models.TicketReview `json:"list"`
 	Total int64                 `json:"total"`
-}
-
-// ResponseTicketReviewerList 评委列表响应
-type ResponseTicketReviewerList struct {
-	List  []models.TicketReviewer `json:"list"`
-	Total int64                   `json:"total"`
 }

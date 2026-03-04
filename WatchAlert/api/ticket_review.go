@@ -6,7 +6,6 @@ import (
 	middleware "watchAlert/internal/middleware"
 	"watchAlert/internal/services"
 	"watchAlert/internal/types"
-	"watchAlert/pkg/response"
 )
 
 type ticketReviewController struct{}
@@ -42,29 +41,12 @@ func (trc ticketReviewController) API(gin *gin.RouterGroup) {
 		b.GET("list", TicketReviewController.ListReviews)
 		b.GET("get", TicketReviewController.GetReview)
 	}
-
-	// 评委管理
-	c := gin.Group("ticket/reviewer")
-	c.Use(
-		middleware.Auth(),
-		middleware.Permission(),
-		middleware.ParseTenant(),
-		middleware.AuditingLog(),
-	)
-	{
-		c.POST("create", TicketReviewController.CreateReviewer)
-		c.POST("update", TicketReviewController.UpdateReviewer)
-		c.POST("delete", TicketReviewController.DeleteReviewer)
-		c.GET("list", TicketReviewController.ListReviewers)
-		c.GET("get", TicketReviewController.GetReviewer)
-	}
 }
 
 // AssignReviewers 分配评委
 func (trc ticketReviewController) AssignReviewers(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewAssign)
-	if err := ctx.ShouldBindJSON(r); err != nil {
-		response.Fail(ctx, err.Error(), "failed")
+	if err := BindJson(ctx, r); err != nil {
 		return
 	}
 
@@ -94,8 +76,7 @@ func (trc ticketReviewController) AssignReviewers(ctx *gin.Context) {
 // SubmitReview 提交评审
 func (trc ticketReviewController) SubmitReview(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewSubmit)
-	if err := ctx.ShouldBindJSON(r); err != nil {
-		response.Fail(ctx, err.Error(), "failed")
+	if err := BindJson(ctx, r); err != nil {
 		return
 	}
 
@@ -116,7 +97,9 @@ func (trc ticketReviewController) SubmitReview(ctx *gin.Context) {
 // GetReview 获取评审详情
 func (trc ticketReviewController) GetReview(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -135,7 +118,9 @@ func (trc ticketReviewController) GetReview(ctx *gin.Context) {
 // ListReviews 获取评审列表
 func (trc ticketReviewController) ListReviews(ctx *gin.Context) {
 	r := new(types.RequestTicketReviewQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -148,118 +133,5 @@ func (trc ticketReviewController) ListReviews(ctx *gin.Context) {
 
 	Service(ctx, func() (interface{}, interface{}) {
 		return services.TicketReviewService.ListReviews(r)
-	})
-}
-
-// CreateReviewer 创建评委
-func (trc ticketReviewController) CreateReviewer(ctx *gin.Context) {
-	r := new(types.RequestTicketReviewerCreate)
-	if err := ctx.ShouldBindJSON(r); err != nil {
-		response.Fail(ctx, err.Error(), "failed")
-		return
-	}
-
-	tid, exists := ctx.Get("TenantID")
-	if !exists {
-		Service(ctx, func() (interface{}, interface{}) {
-			return nil, fmt.Errorf("租户ID不存在")
-		})
-		return
-	}
-	r.TenantId = tid.(string)
-
-	uid, exists := ctx.Get("UserID")
-	if !exists {
-		Service(ctx, func() (interface{}, interface{}) {
-			return nil, fmt.Errorf("用户ID不存在")
-		})
-		return
-	}
-	r.CreatedBy = uid.(string)
-
-	Service(ctx, func() (interface{}, interface{}) {
-		return services.TicketReviewService.CreateReviewer(r)
-	})
-}
-
-// UpdateReviewer 更新评委
-func (trc ticketReviewController) UpdateReviewer(ctx *gin.Context) {
-	r := new(types.RequestTicketReviewerUpdate)
-	if err := ctx.ShouldBindJSON(r); err != nil {
-		response.Fail(ctx, err.Error(), "failed")
-		return
-	}
-
-	tid, exists := ctx.Get("TenantID")
-	if !exists {
-		Service(ctx, func() (interface{}, interface{}) {
-			return nil, fmt.Errorf("租户ID不存在")
-		})
-		return
-	}
-	r.TenantId = tid.(string)
-
-	Service(ctx, func() (interface{}, interface{}) {
-		return services.TicketReviewService.UpdateReviewer(r)
-	})
-}
-
-// DeleteReviewer 删除评委
-func (trc ticketReviewController) DeleteReviewer(ctx *gin.Context) {
-	r := new(types.RequestTicketReviewerUpdate)
-	if err := ctx.ShouldBindJSON(r); err != nil {
-		response.Fail(ctx, err.Error(), "failed")
-		return
-	}
-
-	tid, exists := ctx.Get("TenantID")
-	if !exists {
-		Service(ctx, func() (interface{}, interface{}) {
-			return nil, fmt.Errorf("租户ID不存在")
-		})
-		return
-	}
-	r.TenantId = tid.(string)
-
-	Service(ctx, func() (interface{}, interface{}) {
-		return services.TicketReviewService.DeleteReviewer(r)
-	})
-}
-
-// GetReviewer 获取评委详情
-func (trc ticketReviewController) GetReviewer(ctx *gin.Context) {
-	r := new(types.RequestTicketReviewerQuery)
-	BindQuery(ctx, r)
-
-	tid, exists := ctx.Get("TenantID")
-	if !exists {
-		Service(ctx, func() (interface{}, interface{}) {
-			return nil, fmt.Errorf("租户ID不存在")
-		})
-		return
-	}
-	r.TenantId = tid.(string)
-
-	Service(ctx, func() (interface{}, interface{}) {
-		return services.TicketReviewService.GetReviewer(r)
-	})
-}
-
-// ListReviewers 获取评委列表
-func (trc ticketReviewController) ListReviewers(ctx *gin.Context) {
-	r := new(types.RequestTicketReviewerQuery)
-	BindQuery(ctx, r)
-
-	tid, exists := ctx.Get("TenantID")
-	if !exists {
-		Service(ctx, func() (interface{}, interface{}) {
-			return nil, fmt.Errorf("租户ID不存在")
-		})
-		return
-	}
-	r.TenantId = tid.(string)
-
-	Service(ctx, func() (interface{}, interface{}) {
-		return services.TicketReviewService.ListReviewers(r)
 	})
 }

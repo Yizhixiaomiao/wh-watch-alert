@@ -8,7 +8,11 @@
       "Bash(del:*)",
       "Bash(echo:*)",
       "Bash(dir:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(cd /opt/wh-watch-alert/WatchAlert && go build -o /dev/null ./cmd/server/main.go 2>&1)",
+      "Bash(git add WatchAlert-web/src/api/ticket_review.jsx WatchAlert-web/src/components/sider/index.jsx WatchAlert-web/src/pages/ticket/reviewer.jsx WatchAlert-web/src/routes/index.jsx WatchAlert/api/ticket.go WatchAlert/api/ticket_review.go WatchAlert/internal/repo/ticket_review.go WatchAlert/internal/services/ticket_review.go WatchAlert/internal/types/ticket_review.go)",
+      "Bash(git add -A WatchAlert-web/src/api/ticket_review.jsx WatchAlert-web/src/components/sider/index.jsx WatchAlert-web/src/pages/ticket/reviewer.jsx WatchAlert-web/src/routes/index.jsx WatchAlert/api/ticket.go WatchAlert/api/ticket_review.go WatchAlert/internal/repo/ticket_review.go WatchAlert/internal/services/ticket_review.go WatchAlert/internal/types/ticket_review.go)",
+      "Bash(git add -A && git status)"
     ]
   }
 }

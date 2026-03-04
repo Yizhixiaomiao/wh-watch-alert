@@ -51,77 +51,9 @@ async function getReviews(params) {
     }
 }
 
-// 评委操作
-async function createReviewer(params) {
-    try {
-        const res = await http('post', '/api/w8t/ticket/reviewer/create', params);
-        message.open({
-            type: 'success',
-            content: '评委创建成功',
-        });
-        return res;
-    } catch (error) {
-        HandleApiError(error);
-        return error;
-    }
-}
-
-async function updateReviewer(params) {
-    try {
-        const res = await http('post', '/api/w8t/ticket/reviewer/update', params);
-        message.open({
-            type: 'success',
-            content: '评委更新成功',
-        });
-        return res;
-    } catch (error) {
-        HandleApiError(error);
-        return error;
-    }
-}
-
-async function deleteReviewer(params) {
-    try {
-        const res = await http('post', '/api/w8t/ticket/reviewer/delete', params);
-        message.open({
-            type: 'success',
-            content: '评委删除成功',
-        });
-        return res;
-    } catch (error) {
-        HandleApiError(error);
-        return error;
-    }
-}
-
-async function getReviewer(params) {
-    try {
-        const res = await http('get', '/api/w8t/ticket/reviewer/get', params);
-        return res;
-    } catch (error) {
-        HandleApiError(error);
-        return error;
-    }
-}
-
-async function getReviewers(params) {
-    try {
-        const res = await http('get', '/api/w8t/ticket/reviewer/list', params);
-        return res;
-    } catch (error) {
-        HandleApiError(error);
-        return error;
-    }
-}
-
 export {
     assignReviewers,
     submitReview,
     getReview,
     getReviews,
-    createReviewer,
-    updateReviewer,
-    deleteReviewer,
-    getReviewer,
-    getReviewers,
 };
