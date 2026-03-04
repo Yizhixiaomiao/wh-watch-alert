@@ -28,20 +28,21 @@ type RequestTicketCreate struct {
 
 // RequestTicketUpdate 更新工单请求
 type RequestTicketUpdate struct {
-	TenantId      string                 `json:"tenantId"`
-	TicketId      string                 `json:"ticketId" binding:"required"`
-	Title         string                 `json:"title"`
-	Description   string                 `json:"description"`
-	Priority      models.TicketPriority  `json:"priority"`
-	Severity      models.TicketSeverity  `json:"severity"`
-	AssignedTo    string                 `json:"assignedTo"`
-	AssignedGroup string                 `json:"assignedGroup"`
-	Followers     []string               `json:"followers"`
-	Labels        map[string]string      `json:"labels"`
-	Tags          []string               `json:"tags"`
-	CustomFields  map[string]interface{} `json:"customFields"`
-	RootCause     string                 `json:"rootCause"`
-	Solution      string                 `json:"solution"`
+	TenantId            string                 `json:"tenantId"`
+	TicketId            string                 `json:"ticketId" binding:"required"`
+	Title               string                 `json:"title"`
+	Description         string                 `json:"description"`
+	Priority            models.TicketPriority  `json:"priority"`
+	Severity            models.TicketSeverity  `json:"severity"`
+	AssignedTo          string                 `json:"assignedTo"`
+	AssignedGroup       string                 `json:"assignedGroup"`
+	Followers           []string               `json:"followers"`
+	Labels              map[string]string      `json:"labels"`
+	Tags                []string               `json:"tags"`
+	CustomFields        map[string]interface{} `json:"customFields"`
+	RootCause           string                 `json:"rootCause"`
+	Solution            string                 `json:"solution"`
+	TreatmentSuggestion string                 `json:"treatmentSuggestion"` // 处理建议
 }
 
 // RequestTicketDelete 删除工单请求
@@ -583,4 +584,25 @@ type StepOrderItem struct {
 type RequestTicketStepsQuery struct {
 	TenantId string `json:"tenantId" form:"tenantId"`
 	TicketId string `json:"ticketId" form:"ticketId" binding:"required"`
+}
+
+// RequestTicketTreatmentSuggestionSync 同步处理建议到知识库请求
+type RequestTicketTreatmentSuggestionSync struct {
+	TenantId   string   `json:"tenantId"`
+	TicketId   string   `json:"ticketId" binding:"required"`
+	Category   string   `json:"category" binding:"required"`   // 知识分类
+	Tags       []string `json:"tags"`                          // 知识标签
+	AuthorId   string   `json:"authorId"`                      // 作者ID
+	PublishNow bool     `json:"publishNow"`                    // 是否立即发布
+}
+
+// RequestTicketStepSync 同步处理步骤到知识库请求
+type RequestTicketStepSync struct {
+	TenantId   string   `json:"tenantId"`
+	TicketId   string   `json:"ticketId" binding:"required"`
+	StepId     string   `json:"stepId" binding:"required"`     // 步骤ID
+	Category   string   `json:"category" binding:"required"`   // 知识分类
+	Tags       []string `json:"tags"`                          // 知识标签
+	AuthorId   string   `json:"authorId"`                      // 作者ID
+	PublishNow bool     `json:"publishNow"`                    // 是否立即发布
 }

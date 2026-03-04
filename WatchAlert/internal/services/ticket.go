@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"strings"
 	"time"
 	"watchAlert/internal/ctx"
 	"watchAlert/internal/models"
@@ -63,6 +64,10 @@ type InterTicketService interface {
 	// 移动端操作
 	MobileCreate(req interface{}) (interface{}, interface{})
 	MobileQuery(req interface{}) (interface{}, interface{})
+
+	// 知识库同步
+	SyncTreatmentSuggestionToKnowledge(req interface{}) (interface{}, interface{})
+	SyncStepToKnowledge(req interface{}) (interface{}, interface{})
 }
 
 func newInterTicketService(ctx *ctx.Context) InterTicketService {
@@ -1378,4 +1383,265 @@ func (s ticketService) ReorderSteps(req interface{}) (interface{}, interface{}) 
 	}
 
 	return nil, nil
+}
+
+// SyncTreatmentSuggestionToKnowledge 同步处理建议到知识库
+func (s ticketService) SyncTreatmentSuggestionToKnowledge(req interface{}) (interface{}, interface{}) {
+	r := req.(*types.RequestTicketTreatmentSuggestionSync)
+
+	// 获取工单
+	ticket, err := s.ctx.DB.Ticket().Get(r.TenantId, r.TicketId)
+	if err != nil {
+		return nil, fmt.Errorf("工单不存在")
+	}
+
+	// 检查是否有处理建议
+	if ticket.TreatmentSuggestion == "" {
+		return nil, fmt.Errorf("该工单没有处理建议")
+	}
+
+	// 检查是否已同步
+	if ticket.KnowledgeId != "" {
+		// 已同步，更新知识
+		knowledge, err := s.ctx.DB.Knowledge().GetKnowledge(r.TenantId, ticket.KnowledgeId)
+		if err == nil {
+			// 更新知识内容
+			knowledge.Content = s.buildKnowledgeContent(ticket)
+			knowledge.ContentText = ticket.TreatmentSuggestion
+			knowledge.Category = r.Category
+			knowledge.Tags = r.Tags
+			knowledge.UpdatedAt = time.Now().Unix()
+			if r.PublishNow {
+				knowledge.Status = models.KnowledgeStatusPublished
+			}
+			err = s.ctx.DB.Knowledge().UpdateKnowledge(knowledge)
+			if err != nil {
+				return nil, err
+			}
+			return map[string]string{"knowledgeId": ticket.KnowledgeId}, nil
+		}
+	}
+
+	// 构建知识内容
+	content := s.buildKnowledgeContent(ticket)
+
+	// 创建知识
+	knowledgeId := "kn-" + tools.RandId()
+	status := models.KnowledgeStatusDraft
+	if r.PublishNow {
+		status = models.KnowledgeStatusPublished
+	}
+
+	knowledge := models.Knowledge{
+		KnowledgeId:    knowledgeId,
+		TenantId:       r.TenantId,
+		Title:          fmt.Sprintf("【处理建议】%s", ticket.Title),
+		Category:       r.Category,
+		Tags:           r.Tags,
+		Content:        content,
+		ContentText:    ticket.TreatmentSuggestion,
+		SourceTicket:   r.TicketId,
+		RelatedTickets: []string{r.TicketId},
+		AuthorId:       r.AuthorId,
+		Status:         status,
+		ViewCount:      0,
+		LikeCount:      0,
+		UseCount:       0,
+		CreatedAt:      time.Now().Unix(),
+		UpdatedAt:      time.Now().Unix(),
+	}
+
+	err = s.ctx.DB.Knowledge().CreateKnowledge(knowledge)
+	if err != nil {
+		return nil, err
+	}
+
+	// 更新工单的知识ID
+	ticket.KnowledgeId = knowledgeId
+	ticket.UpdatedAt = time.Now().Unix()
+	s.ctx.DB.Ticket().Update(ticket)
+
+	// 创建工作日志
+	s.createWorkLog(r.TicketId, r.AuthorId, "sync_knowledge", "同步处理建议到知识库", "", knowledgeId)
+
+	return map[string]string{"knowledgeId": knowledgeId}, nil
+}
+
+// buildKnowledgeContent 构建知识内容
+func (s ticketService) buildKnowledgeContent(ticket models.Ticket) string {
+	content := fmt.Sprintf(`<h2>工单信息</h2>
+<p><strong>工单编号：</strong>%s</p>
+<p><strong>标题：</strong>%s</p>
+<p><strong>优先级：</strong>%s</p>
+<p><strong>严重程度：</strong>%s</p>
+<p><strong>数据源类型：</strong>%s</p>
+</p>
+
+<h2>告警详情</h2>
+<p>%s</p>
+
+<h2>AI处理建议</h2>
+<p>%s</p>
+`,
+		ticket.TicketNo,
+		ticket.Title,
+		ticket.Priority,
+		ticket.Severity,
+		ticket.DatasourceType,
+		ticket.Description,
+		ticket.TreatmentSuggestion,
+	)
+
+	return content
+}
+
+// SyncStepToKnowledge 同步处理步骤到知识库
+func (s ticketService) SyncStepToKnowledge(req interface{}) (interface{}, interface{}) {
+	r := req.(*types.RequestTicketStepSync)
+
+	// 获取工单
+	ticket, err := s.ctx.DB.Ticket().Get(r.TenantId, r.TicketId)
+	if err != nil {
+		return nil, fmt.Errorf("工单不存在")
+	}
+
+	// 查找指定的处理步骤
+	var targetStep *models.TicketStep
+	for i := range ticket.Steps {
+		if ticket.Steps[i].StepId == r.StepId {
+			targetStep = &ticket.Steps[i]
+			break
+		}
+	}
+
+	if targetStep == nil {
+		return nil, fmt.Errorf("处理步骤不存在")
+	}
+
+	// 检查步骤是否有内容
+	if targetStep.Method == "" && targetStep.Result == "" {
+		return nil, fmt.Errorf("该处理步骤没有可同步的内容")
+	}
+
+	// 检查是否已同步（优先通过主KnowledgeId判断）
+	if targetStep.KnowledgeId != "" {
+		// 已同步，更新知识
+		knowledge, err := s.ctx.DB.Knowledge().GetKnowledge(r.TenantId, targetStep.KnowledgeId)
+		if err == nil {
+			// 更新知识内容
+			knowledge.Content = s.buildStepKnowledgeContent(ticket, *targetStep)
+			knowledge.ContentText = s.buildStepKnowledgeContentText(*targetStep)
+			knowledge.Category = r.Category
+			knowledge.Tags = r.Tags
+			knowledge.UpdatedAt = time.Now().Unix()
+			if r.PublishNow {
+				knowledge.Status = models.KnowledgeStatusPublished
+			}
+			err = s.ctx.DB.Knowledge().UpdateKnowledge(knowledge)
+			if err != nil {
+				return nil, err
+			}
+			return map[string]string{"knowledgeId": targetStep.KnowledgeId}, nil
+		}
+	}
+
+	// 构建知识内容
+	content := s.buildStepKnowledgeContent(ticket, *targetStep)
+	contentText := s.buildStepKnowledgeContentText(*targetStep)
+
+	// 创建知识
+	knowledgeId := "kn-" + tools.RandId()
+	status := models.KnowledgeStatusDraft
+	if r.PublishNow {
+		status = models.KnowledgeStatusPublished
+	}
+
+	knowledge := models.Knowledge{
+		KnowledgeId:    knowledgeId,
+		TenantId:       r.TenantId,
+		Title:          fmt.Sprintf("【处理步骤】%s - %s", ticket.Title, targetStep.Title),
+		Category:       r.Category,
+		Tags:           r.Tags,
+		Content:        content,
+		ContentText:    contentText,
+		SourceTicket:   r.TicketId,
+		RelatedTickets: []string{r.TicketId},
+		AuthorId:       r.AuthorId,
+		Status:         status,
+		ViewCount:      0,
+		LikeCount:      0,
+		UseCount:       0,
+		CreatedAt:      time.Now().Unix(),
+		UpdatedAt:      time.Now().Unix(),
+	}
+
+	err = s.ctx.DB.Knowledge().CreateKnowledge(knowledge)
+	if err != nil {
+		return nil, err
+	}
+
+	// 更新处理步骤的知识库ID
+	targetStep.KnowledgeId = knowledgeId
+	targetStep.KnowledgeIds = append(targetStep.KnowledgeIds, knowledgeId)
+	err = s.ctx.DB.Ticket().UpdateStep(r.TicketId, *targetStep)
+	if err != nil {
+		return nil, err
+	}
+
+	// 创建工作日志
+	s.createWorkLog(r.TicketId, r.AuthorId, "sync_step_knowledge", fmt.Sprintf("同步处理步骤到知识库: %s", targetStep.Title), "", knowledgeId)
+
+	return map[string]string{"knowledgeId": knowledgeId}, nil
+}
+
+// buildStepKnowledgeContent 构建处理步骤的知识内容
+func (s ticketService) buildStepKnowledgeContent(ticket models.Ticket, step models.TicketStep) string {
+	content := fmt.Sprintf(`<h2>关联工单</h2>
+<p><strong>工单编号：</strong>%s</p>
+<p><strong>标题：</strong>%s</p>
+<p><strong>优先级：</strong>%s</p>
+<p><strong>严重程度：</strong>%s</p>
+</p>
+
+<h2>处理步骤</h2>
+<p><strong>步骤标题：</strong>%s</p>
+<p><strong>步骤描述：</strong>%s</p>
+</p>
+
+<h2>处理方法</h2>
+<p>%s</p>
+
+<h2>处理结果</h2>
+<p>%s</p>
+`,
+		ticket.TicketNo,
+		ticket.Title,
+		ticket.Priority,
+		ticket.Severity,
+		step.Title,
+		step.Description,
+		step.Method,
+		step.Result,
+	)
+
+	return content
+}
+
+// buildStepKnowledgeContentText 构建处理步骤的知识纯文本内容
+func (s ticketService) buildStepKnowledgeContentText(step models.TicketStep) string {
+	var builder strings.Builder
+
+	if step.Description != "" {
+		builder.WriteString(fmt.Sprintf("步骤描述: %s\n", step.Description))
+	}
+
+	if step.Method != "" {
+		builder.WriteString(fmt.Sprintf("\n处理方法:\n%s\n", step.Method))
+	}
+
+	if step.Result != "" {
+		builder.WriteString(fmt.Sprintf("\n处理结果:\n%s\n", step.Result))
+	}
+
+	return builder.String()
 }

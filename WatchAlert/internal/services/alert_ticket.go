@@ -2,11 +2,13 @@ package services
 
 import (
 	"fmt"
+	"strings"
 	"time"
 	"watchAlert/internal/ctx"
 	"watchAlert/internal/models"
 	"watchAlert/internal/repo"
 	"watchAlert/internal/types"
+	"watchAlert/pkg/ai"
 	"watchAlert/pkg/tools"
 )
 
@@ -106,6 +108,9 @@ func (s *alertTicketService) CreateTicketFromAlert(alert *models.AlertCurEvent) 
 	// 构建工单标题和描述
 	title, description := s.buildTicketContent(alert)
 
+	// 获取AI处理建议
+	treatmentSuggestion := s.getAITreatmentSuggestion(alert)
+
 	// 获取默认处理人
 	var assignedTo, assignedGroup string
 	if rule.AutoAssign {
@@ -139,35 +144,36 @@ func (s *alertTicketService) CreateTicketFromAlert(alert *models.AlertCurEvent) 
 	}
 
 	ticket := models.Ticket{
-		TenantId:       alert.TenantId,
-		TicketId:       ticketId,
-		TicketNo:       ticketNo,
-		Title:          title,
-		Description:    description,
-		Type:           models.TicketTypeAlert,
-		Priority:       priority,
-		Severity:       severity,
-		Status:         models.TicketStatusPending,
-		Source:         models.TicketSourceAuto,
-		EventId:        alert.EventId,
-		FaultCenterId:  alert.FaultCenterId,
-		RuleId:         alert.RuleId,
-		DatasourceType: alert.DatasourceType,
-		CreatedBy:      "system",
-		AssignedTo:     assignedTo,
-		AssignedGroup:  assignedGroup,
-		Followers:      []string{},
-		Labels:         labels,
-		Tags:           []string{"告警工单", alert.DatasourceType, alert.Severity},
-		CustomFields:   customFields,
-		CreatedAt:      time.Now().Unix(),
-		UpdatedAt:      time.Now().Unix(),
-		ResponseSLA:    responseSLA,
-		ResolutionSLA:  resolutionSLA,
-		DueTime:        dueTime,
-		IsOverdue:      false,
-		AlarmActive:    true,
-		LastSyncTime:   time.Now().Unix(),
+		TenantId:            alert.TenantId,
+		TicketId:            ticketId,
+		TicketNo:            ticketNo,
+		Title:               title,
+		Description:         description,
+		Type:                models.TicketTypeAlert,
+		Priority:            priority,
+		Severity:            severity,
+		Status:              models.TicketStatusPending,
+		Source:              models.TicketSourceAuto,
+		EventId:             alert.EventId,
+		FaultCenterId:       alert.FaultCenterId,
+		RuleId:              alert.RuleId,
+		DatasourceType:      alert.DatasourceType,
+		CreatedBy:           "system",
+		AssignedTo:          assignedTo,
+		AssignedGroup:       assignedGroup,
+		Followers:           []string{},
+		Labels:              labels,
+		Tags:                []string{"告警工单", alert.DatasourceType, alert.Severity},
+		CustomFields:        customFields,
+		CreatedAt:           time.Now().Unix(),
+		UpdatedAt:           time.Now().Unix(),
+		ResponseSLA:         responseSLA,
+		ResolutionSLA:       resolutionSLA,
+		DueTime:             dueTime,
+		IsOverdue:           false,
+		AlarmActive:         true,
+		LastSyncTime:        time.Now().Unix(),
+		TreatmentSuggestion: treatmentSuggestion,
 	}
 
 	// 如果指定了处理人，设置状态为处理中
@@ -441,19 +447,114 @@ func (s *alertTicketService) buildTicketContent(alert *models.AlertCurEvent) (ti
 		}
 	}
 
-	description += fmt.Sprintf(`
-## 处理建议
-
-1. 检查相关服务状态
-2. 查看详细日志信息
-3. 确认影响范围
-4. 制定解决方案
-
+	description += `
 ---
 *此工单由告警系统自动创建*
-`)
+`
 
 	return title, description
+}
+
+// getAITreatmentSuggestion 获取AI处理建议
+func (s *alertTicketService) getAITreatmentSuggestion(alert *models.AlertCurEvent) string {
+	// 获取系统设置
+	setting, err := s.ctx.DB.Setting().Get()
+	if err != nil {
+		return ""
+	}
+
+	// 检查是否启用AI
+	if !setting.AiConfig.GetEnable() {
+		return ""
+	}
+
+	// 获取AI客户端
+	client, err := s.ctx.Redis.ProviderPools().GetClient("AiClient")
+	if err != nil {
+		return ""
+	}
+
+	aiClient, ok := client.(ai.AiClient)
+	if !ok {
+		return ""
+	}
+
+	// 构建AI提示词
+	prompt := s.buildAIPrompt(alert)
+
+	// 调用AI获取处理建议
+	suggestion, err := aiClient.ChatCompletion(s.ctx.Ctx, prompt)
+	if err != nil {
+		return ""
+	}
+
+	return suggestion
+}
+
+// buildAIPrompt 构建AI提示词
+func (s *alertTicketService) buildAIPrompt(alert *models.AlertCurEvent) string {
+	// 构建告警内容详情
+	var contentBuilder strings.Builder
+
+	// 添加标签信息
+	if len(alert.Labels) > 0 {
+		contentBuilder.WriteString("标签信息:\n")
+		for k, v := range alert.Labels {
+			contentBuilder.WriteString(fmt.Sprintf("  - %s: %v\n", k, v))
+		}
+	}
+
+	// 添加告警注解
+	if alert.Annotations != "" {
+		contentBuilder.WriteString(fmt.Sprintf("\n告警注解:\n%s\n", alert.Annotations))
+	}
+
+	// 添加事件详情
+	contentBuilder.WriteString(fmt.Sprintf("\n事件详情:\n"))
+	contentBuilder.WriteString(fmt.Sprintf("  - 数据源类型: %s\n", alert.DatasourceType))
+	contentBuilder.WriteString(fmt.Sprintf("  - 严重程度: %s\n", alert.Severity))
+	contentBuilder.WriteString(fmt.Sprintf("  - 首次触发时间: %s\n", time.Unix(alert.FirstTriggerTime, 0).Format("2006-01-02 15:04:05")))
+	contentBuilder.WriteString(fmt.Sprintf("  - 持续时间: %d秒\n", alert.ForDuration))
+	contentBuilder.WriteString(fmt.Sprintf("  - 评估间隔: %d秒\n", alert.EvalInterval))
+
+	content := contentBuilder.String()
+
+	// 默认提示词模板
+	defaultPromptTemplate := `请分析以下警报内容，下面的信息很可能包括（指标、日志、跟踪或 Kubernetes 事件）。
+---
+您的分析应包括：
+1. 可能的原因分析：详细解释警报中出现问题的潜在原因，并提供相关示例。
+2. 排查步骤：概述系统化的故障排除和问题解决方法，包括具体的步骤、命令或工具。
+3. 最佳实践和策略：推荐防止此类问题再次发生的最佳实践，讨论如何实施监控、警报和操作程序以缓解类似问题。
+---
+现在我接收到的告警内容如下：
+规则名称:
+{{ RuleName }}
+触发条件:
+{{ SearchQL }}
+告警内容:
+{{ Content }}
+---
+请根据以下三个方面，结构化地回复我，要求简洁明了、通俗易懂：
+1. 分析可能的原因
+2. 具体的排查步骤
+3. 如何规避
+---
+请清晰格式化您的回复，并使用适当的标题分隔每个部分。`
+
+	// 使用系统配置的提示词模板（如果存在）
+	promptTemplate := defaultPromptTemplate
+	setting, err := s.ctx.DB.Setting().Get()
+	if err == nil && setting.AiConfig.Prompt != "" {
+		promptTemplate = setting.AiConfig.Prompt
+	}
+
+	// 替换模板变量
+	prompt := strings.ReplaceAll(promptTemplate, "{{ RuleName }}", alert.RuleName)
+	prompt = strings.ReplaceAll(prompt, "{{ SearchQL }}", alert.SearchQL)
+	prompt = strings.ReplaceAll(prompt, "{{ Content }}", content)
+
+	return prompt
 }
 
 // getAlertTicketRule 获取告警转工单规则

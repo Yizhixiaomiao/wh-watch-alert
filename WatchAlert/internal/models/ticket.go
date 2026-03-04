@@ -102,8 +102,9 @@ type Ticket struct {
 	CustomFields map[string]interface{} `json:"customFields" gorm:"column:custom_fields;serializer:json"`
 
 	// 处理信息
-	RootCause string `json:"rootCause" gorm:"column:root_cause;type:text"`
-	Solution  string `json:"solution" gorm:"column:solution;type:text"`
+	RootCause          string `json:"rootCause" gorm:"column:root_cause;type:text"`
+	Solution           string `json:"solution" gorm:"column:solution;type:text"`
+	TreatmentSuggestion string `json:"treatmentSuggestion" gorm:"column:treatment_suggestion;type:text"` // AI处理建议
 
 	// 统计信息
 	ResponseTime   int64 `json:"responseTime" gorm:"column:response_time"`
@@ -234,6 +235,7 @@ type TicketStep struct {
 	CreatedBy    string   `json:"createdBy" gorm:"column:created_by"`
 	CreatedAt    int64    `json:"createdAt" gorm:"column:created_at"`
 	TenantId     string   `json:"tenantId" gorm:"column:tenant_id;index:idx_tenant_id"`
+	KnowledgeId  string   `json:"knowledgeId" gorm:"column:knowledge_id;index:idx_knowledge_id"`       // 主知识库ID（同步后生成）
 	KnowledgeIds []string `json:"knowledgeIds" gorm:"column:knowledge_ids;serializer:json"` // 关联的知识ID列表
 }
 

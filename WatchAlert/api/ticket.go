@@ -43,6 +43,8 @@ func (ticketController ticketController) API(gin *gin.RouterGroup) {
 		a.POST("step/update", TicketController.UpdateStep)
 		a.POST("step/delete", TicketController.DeleteStep)
 		a.POST("step/reorder", TicketController.ReorderSteps)
+		a.POST("step/sync", TicketController.SyncStepToKnowledge)
+		a.POST("treatment-suggestion/sync", TicketController.SyncTreatmentSuggestionToKnowledge)
 	}
 
 	// 查询操作
@@ -879,5 +881,65 @@ func (tc ticketController) GetSteps(ctx *gin.Context) {
 
 	Service(ctx, func() (interface{}, interface{}) {
 		return services.TicketService.GetSteps(r)
+	})
+}
+
+// SyncTreatmentSuggestionToKnowledge 同步处理建议到知识库
+func (tc ticketController) SyncTreatmentSuggestionToKnowledge(ctx *gin.Context) {
+	r := new(types.RequestTicketTreatmentSuggestionSync)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
+
+	tid, exists := ctx.Get("TenantID")
+	if !exists {
+		Service(ctx, func() (interface{}, interface{}) {
+			return nil, fmt.Errorf("租户ID不存在")
+		})
+		return
+	}
+	r.TenantId = tid.(string)
+
+	uid, exists := ctx.Get("UserID")
+	if !exists {
+		Service(ctx, func() (interface{}, interface{}) {
+			return nil, fmt.Errorf("用户ID不存在")
+		})
+		return
+	}
+	r.AuthorId = uid.(string)
+
+	Service(ctx, func() (interface{}, interface{}) {
+		return services.TicketService.SyncTreatmentSuggestionToKnowledge(r)
+	})
+}
+
+// SyncStepToKnowledge 同步处理步骤到知识库
+func (tc ticketController) SyncStepToKnowledge(ctx *gin.Context) {
+	r := new(types.RequestTicketStepSync)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
+
+	tid, exists := ctx.Get("TenantID")
+	if !exists {
+		Service(ctx, func() (interface{}, interface{}) {
+			return nil, fmt.Errorf("租户ID不存在")
+		})
+		return
+	}
+	r.TenantId = tid.(string)
+
+	uid, exists := ctx.Get("UserID")
+	if !exists {
+		Service(ctx, func() (interface{}, interface{}) {
+			return nil, fmt.Errorf("用户ID不存在")
+		})
+		return
+	}
+	r.AuthorId = uid.(string)
+
+	Service(ctx, func() (interface{}, interface{}) {
+		return services.TicketService.SyncStepToKnowledge(r)
 	})
 }
