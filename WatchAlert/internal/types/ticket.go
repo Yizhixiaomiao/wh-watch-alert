@@ -175,24 +175,23 @@ type RequestTicketTemplateCreate struct {
 	TenantId        string                 `json:"tenantId"`
 	Name            string                 `json:"name" binding:"required"`
 	Type            models.TicketType      `json:"type" binding:"required"`
-	TitleTemplate   string                 `json:"titleTemplate" binding:"required"`
-	DescTemplate    string                 `json:"descTemplate"`
-	DefaultPriority models.TicketPriority  `json:"defaultPriority"`
-	DefaultAssignee string                 `json:"defaultAssignee"`
+	Priority        models.TicketPriority  `json:"priority"`
+	Status          string                 `json:"status"`
+	Description     string                 `json:"description"`
 	CustomFields    map[string]interface{} `json:"customFields"`
 	CreatedBy       string                 `json:"createdBy"`
 }
 
 // RequestTicketTemplateUpdate 更新工单模板请求
 type RequestTicketTemplateUpdate struct {
-	TenantId        string                 `json:"tenantId"`
-	Id              string                 `json:"id" binding:"required"`
-	Name            string                 `json:"name"`
-	TitleTemplate   string                 `json:"titleTemplate"`
-	DescTemplate    string                 `json:"descTemplate"`
-	DefaultPriority models.TicketPriority  `json:"defaultPriority"`
-	DefaultAssignee string                 `json:"defaultAssignee"`
-	CustomFields    map[string]interface{} `json:"customFields"`
+	TenantId     string                 `json:"tenantId"`
+	Id           string                 `json:"id" binding:"required"`
+	Name         string                 `json:"name"`
+	Type         models.TicketType      `json:"type"`
+	Priority     models.TicketPriority  `json:"priority"`
+	Status       string                 `json:"status"`
+	Description  string                 `json:"description"`
+	CustomFields map[string]interface{} `json:"customFields"`
 }
 
 // RequestTicketTemplateDelete 删除工单模板请求

@@ -2,11 +2,9 @@ package models
 
 // WorkHoursStandard 工时标准表
 type WorkHoursStandard struct {
-	StandardId    string  `json:"standardId" gorm:"column:standard_id;primaryKey"`
+	Id            string  `json:"id" gorm:"column:id;primaryKey"`
 	TenantId      string  `json:"tenantId" gorm:"column:tenant_id;index:idx_tenant_id"`
-	Category      string  `json:"category" gorm:"column:category;index:idx_category"`
-	SubCategory   string  `json:"subCategory" gorm:"column:sub_category;index:idx_sub_category"`
-	Difficulty    string  `json:"difficulty" gorm:"column:difficulty;index:idx_difficulty"`
+	Type          string  `json:"type" gorm:"column:type;index:idx_type"`
 	StandardHours float64 `json:"standardHours" gorm:"column:standard_hours"`
 	Description   string  `json:"description" gorm:"column:description;type:text"`
 	CreatedBy     string  `json:"createdBy" gorm:"column:created_by"`

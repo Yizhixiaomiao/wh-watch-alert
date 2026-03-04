@@ -182,18 +182,17 @@ func (TicketAttachment) TableName() string {
 
 // TicketTemplate 工单模板表
 type TicketTemplate struct {
-	TenantId        string                 `json:"tenantId" gorm:"column:tenant_id;index:idx_tenant_id"`
-	Id              string                 `json:"id" gorm:"column:id;primaryKey"`
-	Name            string                 `json:"name" gorm:"column:name"`
-	Type            TicketType             `json:"type" gorm:"column:type"`
-	TitleTemplate   string                 `json:"titleTemplate" gorm:"column:title_template"`
-	DescTemplate    string                 `json:"descTemplate" gorm:"column:desc_template;type:text"`
-	DefaultPriority TicketPriority         `json:"defaultPriority" gorm:"column:default_priority"`
-	DefaultAssignee string                 `json:"defaultAssignee" gorm:"column:default_assignee"`
-	CustomFields    map[string]interface{} `json:"customFields" gorm:"column:custom_fields;serializer:json"`
-	CreatedBy       string                 `json:"createdBy" gorm:"column:created_by"`
-	CreatedAt       int64                  `json:"createdAt" gorm:"column:created_at"`
-	UpdatedAt       int64                  `json:"updatedAt" gorm:"column:updated_at"`
+	TenantId     string                 `json:"tenantId" gorm:"column:tenant_id;index:idx_tenant_id"`
+	Id           string                 `json:"id" gorm:"column:id;primaryKey"`
+	Name         string                 `json:"name" gorm:"column:name"`
+	Type         TicketType             `json:"type" gorm:"column:type"`
+	Priority     TicketPriority         `json:"priority" gorm:"column:priority"`
+	Status       string                 `json:"status" gorm:"column:status"`
+	Description  string                 `json:"description" gorm:"column:description;type:text"`
+	CustomFields map[string]interface{} `json:"customFields" gorm:"column:custom_fields;serializer:json"`
+	CreatedBy    string                 `json:"createdBy" gorm:"column:created_by"`
+	CreatedAt    int64                  `json:"createdAt" gorm:"column:created_at"`
+	UpdatedAt    int64                  `json:"updatedAt" gorm:"column:updated_at"`
 }
 
 // TableName 指定表名

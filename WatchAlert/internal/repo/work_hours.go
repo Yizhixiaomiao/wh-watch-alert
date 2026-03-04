@@ -14,10 +14,9 @@ type (
 		// 工时标准操作
 		CreateStandard(standard models.WorkHoursStandard) error
 		UpdateStandard(standard models.WorkHoursStandard) error
-		DeleteStandard(tenantId, standardId string) error
-		GetStandard(tenantId, standardId string) (models.WorkHoursStandard, error)
-		ListStandards(tenantId, category, subCategory, difficulty string, page, size int) ([]models.WorkHoursStandard, int64, error)
-		GetStandardByCategory(tenantId, category, subCategory, difficulty string) (models.WorkHoursStandard, error)
+		DeleteStandard(tenantId, id string) error
+		GetStandard(tenantId, id string) (models.WorkHoursStandard, error)
+		ListStandards(tenantId string, page, size int) ([]models.WorkHoursStandard, int64, error)
 	}
 )
 
@@ -39,24 +38,24 @@ func (wh WorkHoursRepo) CreateStandard(standard models.WorkHoursStandard) error 
 func (wh WorkHoursRepo) UpdateStandard(standard models.WorkHoursStandard) error {
 	return wh.g.Updates(Updates{
 		Table:   &models.WorkHoursStandard{},
-		Where:   map[string]interface{}{"tenant_id": standard.TenantId, "standard_id": standard.StandardId},
+		Where:   map[string]interface{}{"tenant_id": standard.TenantId, "id": standard.Id},
 		Updates: standard,
 	})
 }
 
 // DeleteStandard 删除工时标准
-func (wh WorkHoursRepo) DeleteStandard(tenantId, standardId string) error {
+func (wh WorkHoursRepo) DeleteStandard(tenantId, id string) error {
 	return wh.g.Delete(Delete{
 		Table: &models.WorkHoursStandard{},
-		Where: map[string]interface{}{"tenant_id": tenantId, "standard_id": standardId},
+		Where: map[string]interface{}{"tenant_id": tenantId, "id": id},
 	})
 }
 
 // GetStandard 获取工时标准详情
-func (wh WorkHoursRepo) GetStandard(tenantId, standardId string) (models.WorkHoursStandard, error) {
+func (wh WorkHoursRepo) GetStandard(tenantId, id string) (models.WorkHoursStandard, error) {
 	var standard models.WorkHoursStandard
 	db := wh.db.Model(&models.WorkHoursStandard{})
-	db.Where("tenant_id = ? AND standard_id = ?", tenantId, standardId)
+	db.Where("tenant_id = ? AND id = ?", tenantId, id)
 	err := db.First(&standard).Error
 	if err != nil {
 		return standard, err
@@ -65,7 +64,7 @@ func (wh WorkHoursRepo) GetStandard(tenantId, standardId string) (models.WorkHou
 }
 
 // ListStandards 获取工时标准列表
-func (wh WorkHoursRepo) ListStandards(tenantId, category, subCategory, difficulty string, page, size int) ([]models.WorkHoursStandard, int64, error) {
+func (wh WorkHoursRepo) ListStandards(tenantId string, page, size int) ([]models.WorkHoursStandard, int64, error) {
 	var (
 		standards []models.WorkHoursStandard
 		count     int64
@@ -74,23 +73,13 @@ func (wh WorkHoursRepo) ListStandards(tenantId, category, subCategory, difficult
 	db := wh.db.Model(&models.WorkHoursStandard{})
 	db.Where("tenant_id = ?", tenantId)
 
-	if category != "" {
-		db.Where("category = ?", category)
-	}
-	if subCategory != "" {
-		db.Where("sub_category = ?", subCategory)
-	}
-	if difficulty != "" {
-		db.Where("difficulty = ?", difficulty)
-	}
-
 	db.Count(&count)
 
 	if page > 0 && size > 0 {
 		db.Limit(size).Offset((page - 1) * size)
 	}
 
-	db.Order("category, sub_category, difficulty")
+	db.Order("created_at desc")
 
 	err := db.Find(&standards).Error
 	if err != nil {
@@ -98,16 +87,4 @@ func (wh WorkHoursRepo) ListStandards(tenantId, category, subCategory, difficult
 	}
 
 	return standards, count, nil
-}
-
-// GetStandardByCategory 根据分类获取工时标准
-func (wh WorkHoursRepo) GetStandardByCategory(tenantId, category, subCategory, difficulty string) (models.WorkHoursStandard, error) {
-	var standard models.WorkHoursStandard
-	db := wh.db.Model(&models.WorkHoursStandard{})
-	db.Where("tenant_id = ? AND category = ? AND sub_category = ? AND difficulty = ?", tenantId, category, subCategory, difficulty)
-	err := db.First(&standard).Error
-	if err != nil {
-		return standard, err
-	}
-	return standard, nil
 }

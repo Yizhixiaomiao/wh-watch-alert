@@ -102,7 +102,9 @@ func (ticketController ticketController) API(gin *gin.RouterGroup) {
 // Create 创建工单
 func (tc ticketController) Create(ctx *gin.Context) {
 	r := new(types.RequestTicketCreate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -134,7 +136,9 @@ func (tc ticketController) Create(ctx *gin.Context) {
 // Update 更新工单
 func (tc ticketController) Update(ctx *gin.Context) {
 	r := new(types.RequestTicketUpdate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -153,7 +157,9 @@ func (tc ticketController) Update(ctx *gin.Context) {
 // Delete 删除工单
 func (tc ticketController) Delete(ctx *gin.Context) {
 	r := new(types.RequestTicketDelete)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -172,7 +178,9 @@ func (tc ticketController) Delete(ctx *gin.Context) {
 // Get 获取工单详情
 func (tc ticketController) Get(ctx *gin.Context) {
 	r := new(types.RequestTicketQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -191,7 +199,9 @@ func (tc ticketController) Get(ctx *gin.Context) {
 // List 获取工单列表
 func (tc ticketController) List(ctx *gin.Context) {
 	r := new(types.RequestTicketQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -210,7 +220,9 @@ func (tc ticketController) List(ctx *gin.Context) {
 // Assign 分配工单
 func (tc ticketController) Assign(ctx *gin.Context) {
 	r := new(types.RequestTicketAssign)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -238,7 +250,9 @@ func (tc ticketController) Assign(ctx *gin.Context) {
 // Claim 认领工单
 func (tc ticketController) Claim(ctx *gin.Context) {
 	r := new(types.RequestTicketClaim)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -266,7 +280,9 @@ func (tc ticketController) Claim(ctx *gin.Context) {
 // Transfer 转派工单
 func (tc ticketController) Transfer(ctx *gin.Context) {
 	r := new(types.RequestTicketTransfer)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -294,7 +310,9 @@ func (tc ticketController) Transfer(ctx *gin.Context) {
 // Escalate 升级工单
 func (tc ticketController) Escalate(ctx *gin.Context) {
 	r := new(types.RequestTicketEscalate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -322,7 +340,9 @@ func (tc ticketController) Escalate(ctx *gin.Context) {
 // Resolve 标记解决
 func (tc ticketController) Resolve(ctx *gin.Context) {
 	r := new(types.RequestTicketResolve)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -350,7 +370,9 @@ func (tc ticketController) Resolve(ctx *gin.Context) {
 // Close 关闭工单
 func (tc ticketController) Close(ctx *gin.Context) {
 	r := new(types.RequestTicketClose)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -378,7 +400,9 @@ func (tc ticketController) Close(ctx *gin.Context) {
 // Reopen 重新打开工单
 func (tc ticketController) Reopen(ctx *gin.Context) {
 	r := new(types.RequestTicketReopen)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -406,7 +430,9 @@ func (tc ticketController) Reopen(ctx *gin.Context) {
 // AddComment 添加评论
 func (tc ticketController) AddComment(ctx *gin.Context) {
 	r := new(types.RequestTicketComment)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -434,7 +460,9 @@ func (tc ticketController) AddComment(ctx *gin.Context) {
 // GetComments 获取评论列表
 func (tc ticketController) GetComments(ctx *gin.Context) {
 	r := new(types.RequestTicketCommentQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {

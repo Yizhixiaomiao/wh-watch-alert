@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(cd D:/Workspace/w8t/WatchAlert && go build ./... 2>&1)",
+      "Bash(true:*)",
+      "Bash(tail:*)",
+      "Bash(del:*)",
+      "Bash(echo:*)",
+      "Bash(dir:*)",
+      "Bash(powershell:*)"
+    ]
+  }
+}

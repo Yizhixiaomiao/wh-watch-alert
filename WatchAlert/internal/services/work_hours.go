@@ -32,11 +32,9 @@ func (s workHoursService) CreateStandard(req interface{}) (interface{}, interfac
 	r := req.(*types.RequestWorkHoursStandardCreate)
 
 	standard := models.WorkHoursStandard{
-		StandardId:    "whs-" + tools.RandId(),
+		Id:            "whs-" + tools.RandId(),
 		TenantId:      r.TenantId,
-		Category:      r.Category,
-		SubCategory:   r.SubCategory,
-		Difficulty:    r.Difficulty,
+		Type:          r.Type,
 		StandardHours: r.StandardHours,
 		Description:   r.Description,
 		CreatedBy:     r.CreatedBy,
@@ -56,19 +54,13 @@ func (s workHoursService) CreateStandard(req interface{}) (interface{}, interfac
 func (s workHoursService) UpdateStandard(req interface{}) (interface{}, interface{}) {
 	r := req.(*types.RequestWorkHoursStandardUpdate)
 
-	standard, err := s.ctx.DB.WorkHours().GetStandard(r.TenantId, r.StandardId)
+	standard, err := s.ctx.DB.WorkHours().GetStandard(r.TenantId, r.Id)
 	if err != nil {
 		return nil, fmt.Errorf("工时标准不存在")
 	}
 
-	if r.Category != "" {
-		standard.Category = r.Category
-	}
-	if r.SubCategory != "" {
-		standard.SubCategory = r.SubCategory
-	}
-	if r.Difficulty != "" {
-		standard.Difficulty = r.Difficulty
+	if r.Type != "" {
+		standard.Type = r.Type
 	}
 	if r.StandardHours > 0 {
 		standard.StandardHours = r.StandardHours
@@ -90,7 +82,7 @@ func (s workHoursService) UpdateStandard(req interface{}) (interface{}, interfac
 func (s workHoursService) DeleteStandard(req interface{}) (interface{}, interface{}) {
 	r := req.(*types.RequestWorkHoursStandardDelete)
 
-	err := s.ctx.DB.WorkHours().DeleteStandard(r.TenantId, r.StandardId)
+	err := s.ctx.DB.WorkHours().DeleteStandard(r.TenantId, r.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +94,7 @@ func (s workHoursService) DeleteStandard(req interface{}) (interface{}, interfac
 func (s workHoursService) GetStandard(req interface{}) (interface{}, interface{}) {
 	r := req.(*types.RequestWorkHoursStandardQuery)
 
-	standard, err := s.ctx.DB.WorkHours().GetStandard(r.TenantId, r.StandardId)
+	standard, err := s.ctx.DB.WorkHours().GetStandard(r.TenantId, r.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +106,7 @@ func (s workHoursService) GetStandard(req interface{}) (interface{}, interface{}
 func (s workHoursService) ListStandards(req interface{}) (interface{}, interface{}) {
 	r := req.(*types.RequestWorkHoursStandardQuery)
 
-	standards, total, err := s.ctx.DB.WorkHours().ListStandards(r.TenantId, r.Category, r.SubCategory, r.Difficulty, r.Page, r.Size)
+	standards, total, err := s.ctx.DB.WorkHours().ListStandards(r.TenantId, r.Page, r.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -129,15 +121,19 @@ func (s workHoursService) ListStandards(req interface{}) (interface{}, interface
 func (s workHoursService) CalculateHours(req interface{}) (interface{}, interface{}) {
 	r := req.(*types.RequestWorkHoursCalculate)
 
-	standard, err := s.ctx.DB.WorkHours().GetStandardByCategory(r.TenantId, r.Category, r.SubCategory, r.Difficulty)
+	standards, _, err := s.ctx.DB.WorkHours().ListStandards(r.TenantId, 0, 0)
 	if err != nil {
 		return nil, fmt.Errorf("未找到匹配的工时标准")
 	}
 
-	return types.ResponseWorkHoursCalculate{
-		StandardHours: standard.StandardHours,
-		Category:      standard.Category,
-		SubCategory:   standard.SubCategory,
-		Difficulty:    standard.Difficulty,
-	}, nil
+	for _, standard := range standards {
+		if standard.Type == r.Type {
+			return types.ResponseWorkHoursCalculate{
+				StandardHours: standard.StandardHours,
+				Type:          standard.Type,
+			}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("未找到匹配的工时标准")
 }

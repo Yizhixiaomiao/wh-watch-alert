@@ -48,7 +48,9 @@ func (whc workHoursController) API(gin *gin.RouterGroup) {
 // CreateStandard 创建工时标准
 func (whc workHoursController) CreateStandard(ctx *gin.Context) {
 	r := new(types.RequestWorkHoursStandardCreate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -76,7 +78,9 @@ func (whc workHoursController) CreateStandard(ctx *gin.Context) {
 // UpdateStandard 更新工时标准
 func (whc workHoursController) UpdateStandard(ctx *gin.Context) {
 	r := new(types.RequestWorkHoursStandardUpdate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -95,7 +99,9 @@ func (whc workHoursController) UpdateStandard(ctx *gin.Context) {
 // DeleteStandard 删除工时标准
 func (whc workHoursController) DeleteStandard(ctx *gin.Context) {
 	r := new(types.RequestWorkHoursStandardDelete)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -114,7 +120,9 @@ func (whc workHoursController) DeleteStandard(ctx *gin.Context) {
 // GetStandard 获取工时标准详情
 func (whc workHoursController) GetStandard(ctx *gin.Context) {
 	r := new(types.RequestWorkHoursStandardQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -133,7 +141,9 @@ func (whc workHoursController) GetStandard(ctx *gin.Context) {
 // ListStandards 获取工时标准列表
 func (whc workHoursController) ListStandards(ctx *gin.Context) {
 	r := new(types.RequestWorkHoursStandardQuery)
-	BindQuery(ctx, r)
+	if err := BindQuery(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {
@@ -152,7 +162,9 @@ func (whc workHoursController) ListStandards(ctx *gin.Context) {
 // CalculateHours 计算工时
 func (whc workHoursController) CalculateHours(ctx *gin.Context) {
 	r := new(types.RequestWorkHoursCalculate)
-	BindJson(ctx, r)
+	if err := BindJson(ctx, r); err != nil {
+		return
+	}
 
 	tid, exists := ctx.Get("TenantID")
 	if !exists {

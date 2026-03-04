@@ -689,18 +689,17 @@ func (s ticketService) CreateTemplate(req interface{}) (interface{}, interface{}
 	r := req.(*types.RequestTicketTemplateCreate)
 
 	template := models.TicketTemplate{
-		TenantId:        r.TenantId,
-		Id:              "tmpl-" + tools.RandId(),
-		Name:            r.Name,
-		Type:            r.Type,
-		TitleTemplate:   r.TitleTemplate,
-		DescTemplate:    r.DescTemplate,
-		DefaultPriority: r.DefaultPriority,
-		DefaultAssignee: r.DefaultAssignee,
-		CustomFields:    r.CustomFields,
-		CreatedBy:       r.CreatedBy,
-		CreatedAt:       time.Now().Unix(),
-		UpdatedAt:       time.Now().Unix(),
+		TenantId:     r.TenantId,
+		Id:           "tmpl-" + tools.RandId(),
+		Name:         r.Name,
+		Type:         r.Type,
+		Priority:     r.Priority,
+		Status:       r.Status,
+		Description:  r.Description,
+		CustomFields: r.CustomFields,
+		CreatedBy:    r.CreatedBy,
+		CreatedAt:    time.Now().Unix(),
+		UpdatedAt:    time.Now().Unix(),
 	}
 
 	err := s.ctx.DB.Ticket().CreateTemplate(template)
@@ -723,17 +722,17 @@ func (s ticketService) UpdateTemplate(req interface{}) (interface{}, interface{}
 	if r.Name != "" {
 		template.Name = r.Name
 	}
-	if r.TitleTemplate != "" {
-		template.TitleTemplate = r.TitleTemplate
+	if r.Type != "" {
+		template.Type = r.Type
 	}
-	if r.DescTemplate != "" {
-		template.DescTemplate = r.DescTemplate
+	if r.Priority != "" {
+		template.Priority = r.Priority
 	}
-	if r.DefaultPriority != "" {
-		template.DefaultPriority = r.DefaultPriority
+	if r.Status != "" {
+		template.Status = r.Status
 	}
-	if r.DefaultAssignee != "" {
-		template.DefaultAssignee = r.DefaultAssignee
+	if r.Description != "" {
+		template.Description = r.Description
 	}
 	if r.CustomFields != nil {
 		template.CustomFields = r.CustomFields
